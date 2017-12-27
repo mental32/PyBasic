@@ -5,3 +5,4 @@
 
 **Yes!** that means **You** awesome user can enjoy the pleasure of programming 
 your lovely scripts in good old fashioned BASIC!
+> Warning PyBasic is still very much in development and may/will contain bugs.
