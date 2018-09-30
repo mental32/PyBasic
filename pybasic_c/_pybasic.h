@@ -9,5 +9,7 @@ PyTypeObject ByteCodeInterpreterType;
 #else
 /* This section is used in modules that use PyBasic's API */
 
+void *Println(const char *string);
+
 #endif
 #endif
