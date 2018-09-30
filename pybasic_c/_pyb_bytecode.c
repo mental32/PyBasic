@@ -5,7 +5,7 @@
 
 typedef struct {
     PyObject_HEAD
-    const char *input_file;
+    const char *source;
 } ByteCodeInterpreter;
 
 static void
@@ -43,10 +43,10 @@ ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 ByteCodeInterpreter_init(ByteCodeInterpreter *self, PyObject *args, PyObject *kwds)
 {
-    // static char *kwlist[] = {"first", "last", "number", NULL};
-    // PyObject *first = NULL, *last = NULL, *tmp;
+    // static char *kwlist[] = {"source", NULL};
+    // PyObject tmp;
 
-    if (!PyArg_ParseTuple(args, "s", &self->input_file)) {
+    if (!PyArg_ParseTuple(args, "s", &self->source)) {
         return -1;
     }
 
@@ -61,12 +61,6 @@ ByteCodeInterpreter_init(ByteCodeInterpreter *self, PyObject *args, PyObject *kw
     //     self->first = first;
     //     Py_XDECREF(tmp);
     // }
-    // if (last) {
-    //     tmp = self->last;
-    //     Py_INCREF(last);
-    //     self->last = last;
-    //     Py_XDECREF(tmp);
-    // }
 
     return 0;
 }
@@ -75,11 +69,11 @@ static PyObject *
 ByteCodeInterpreter_run(ByteCodeInterpreter *self)
 {
 
-    // if (self->input_file == NULL) {
-    //     if (!PyObject_CallMethod(self, "run_repl")) {
-    //         return NULL;
-    //     }
-    // }
+    if (self->source) {
+        size_t len = strlen(self->source);
+        printf("%zd\n", len);
+        Println(self->source);
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -93,6 +87,7 @@ ByteCodeInterpreter_run_repl(ByteCodeInterpreter *self)
 }
 
 static PyMemberDef ByteCodeInterpreter_members[] = {
+    {"source", T_STRING, offsetof(ByteCodeInterpreter, source), 0, "source code"},
     {NULL}  /* Sentinel */
 };
 
