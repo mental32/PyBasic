@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# PyBasic 0.1.0 stuff
+_old/
