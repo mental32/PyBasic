@@ -1,8 +1,11 @@
-## Welcome to PyBasic!
+# PyBASIC
 
-### PyBasic is a darmouth BASIC interpreter written in pure Python.
-![Image](https://images.techhive.com/images/idge/imported/imageapi/2014/10/08/18/slide_basiclanguage-100503583-gallery.idge.jpg)
+A (dartmouth) BASIC inspired interpreter written in C using CPython.
 
-**Yes!** that means **You** awesome user can enjoy the pleasure of programming 
-your lovely scripts in good old fashioned BASIC!
-> Warning PyBasic is still very much in development and may/will contain bugs.
+## Installing
+
+Installing PyBASIC LTS.
+- `pip3 install pybasic`
+
+Compiling from source.
+- `pip3 install git+https://github.com/mental32/pybasic`
