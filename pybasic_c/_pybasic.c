@@ -29,7 +29,7 @@ static struct PyModuleDef BPyBasicModule = {
 };
 
 PyMODINIT_FUNC
-PyInit_PyBasicCore(void)
+PyInit__pybasic(void)
 {
     PyObject *m;
     if (PyType_Ready(&ByteCodeInterpreterType) < 0)
