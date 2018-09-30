@@ -1,4 +1,5 @@
 #include <Python.h>
+#include "structmember.h"
 
 #include "_pybasic.h"
 
@@ -74,12 +75,19 @@ static PyObject *
 ByteCodeInterpreter_run(ByteCodeInterpreter *self)
 {
 
-    if (self->input_file == NULL) {
-        if (!PyObject_CallMethod(self, "run_repl")) {
-            return NULL;
-        }
-    }
+    // if (self->input_file == NULL) {
+    //     if (!PyObject_CallMethod(self, "run_repl")) {
+    //         return NULL;
+    //     }
+    // }
 
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+ByteCodeInterpreter_run_repl(ByteCodeInterpreter *self)
+{
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -104,4 +112,5 @@ PyTypeObject ByteCodeInterpreterType = {
     .tp_dealloc = (destructor) ByteCodeInterpreter_dealloc,
     .tp_init = (initproc) ByteCodeInterpreter_init,
     .tp_members = ByteCodeInterpreter_members,
+    .tp_methods = ByteCodeInterpreter_methods,
 };
