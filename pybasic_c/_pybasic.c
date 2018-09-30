@@ -11,8 +11,6 @@ validate_source_structure(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "s", &source))
         return NULL;
 
-    printf("%s" &source);
-
     Py_INCREF(Py_None);
     return Py_None;
 }
