@@ -9,6 +9,8 @@ Println(const char *string)
 
     PyFile_WriteString(string, stdout);
     PyFile_WriteString("\n", stdout);
+
+    return NULL;
 }
 
 PyObject *
@@ -16,7 +18,6 @@ IsInteger(PyObject *self, PyObject *args)
 {
     const char *data;
     char *end;
-    long tmp;
 
     if (!PyArg_ParseTuple(args, "s", &data)) {
         return NULL;
