@@ -10,3 +10,21 @@ Println(const char *string)
     PyFile_WriteString(string, stdout);
     PyFile_WriteString("\n", stdout);
 }
+
+PyObject *
+IsInteger(PyObject *self, PyObject *args)
+{
+    const char *data;
+    char *end;
+    long tmp;
+
+    if (!PyArg_ParseTuple(args, "s", &data)) {
+        return NULL;
+    }
+
+    if (!strtol(data, &end, 10)) {
+        Py_RETURN_FALSE;
+    }
+
+    Py_RETURN_TRUE;
+}

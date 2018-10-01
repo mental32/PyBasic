@@ -17,6 +17,8 @@ validate_source_structure(PyObject *self, PyObject *args)
 
 static PyMethodDef BPyBasicMethods[] = {
     {"validate",  validate_source_structure, METH_VARARGS, NULL},
+    {"parse", parse_string, METH_VARARGS, NULL},
+    {"is_integer", IsInteger, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

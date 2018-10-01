@@ -5,7 +5,6 @@
 
 typedef struct {
     PyObject_HEAD
-    const char *source;
 } ByteCodeInterpreter;
 
 static void
@@ -46,9 +45,9 @@ ByteCodeInterpreter_init(ByteCodeInterpreter *self, PyObject *args, PyObject *kw
     // static char *kwlist[] = {"source", NULL};
     // PyObject tmp;
 
-    if (!PyArg_ParseTuple(args, "s", &self->source)) {
-        return -1;
-    }
+    // if (!PyArg_ParseTuple(args, "s", &self->source)) {
+    //     return -1;
+    // }
 
     // if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOi", kwlist,
     //                                  &first, &last,
@@ -66,14 +65,20 @@ ByteCodeInterpreter_init(ByteCodeInterpreter *self, PyObject *args, PyObject *kw
 }
 
 static PyObject *
-ByteCodeInterpreter_run(ByteCodeInterpreter *self)
+ByteCodeInterpreter_run(ByteCodeInterpreter *self, PyObject *args)
 {
 
-    if (self->source) {
-        size_t len = strlen(self->source);
-        printf("%zd\n", len);
-        Println(self->source);
+    const char *source;
+
+    if (!PyArg_ParseTuple(args, "s", &source)) {
+        return NULL;
     }
+
+    // Println(source);
+    for (size_t i = 0; i < strlen(source); i++) {
+        printf("%d: %c\n", i, source[i]);
+    }
+
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -87,12 +92,12 @@ ByteCodeInterpreter_run_repl(ByteCodeInterpreter *self)
 }
 
 static PyMemberDef ByteCodeInterpreter_members[] = {
-    {"source", T_STRING, offsetof(ByteCodeInterpreter, source), 0, "source code"},
+    // {"source", T_STRING, offsetof(ByteCodeInterpreter, source), 0, "source code"},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef ByteCodeInterpreter_methods[] = {
-    {"run", (PyCFunction) ByteCodeInterpreter_run, METH_NOARGS, "Run the interpreter."},
+    {"run", (PyCFunction) ByteCodeInterpreter_run, METH_VARARGS, "Run the interpreter."},
     {"run_repl", (PyCFunction) ByteCodeInterpreter_run_repl, METH_NOARGS, "Enter the PyBasic REPL."},
     {NULL}  /* Sentinel */
 };

@@ -4,7 +4,8 @@ extensions = [
     Extension('_pybasic', sources=[
         'pybasic_c/_pybasic.c',
         'pybasic_c/_pyb_bytecode.c',
-        'pybasic_c/_pyb_helpers.c'
+        'pybasic_c/_pyb_helpers.c',
+        'pybasic_c/_pyb_parser.c'
     ])
 ]
 
