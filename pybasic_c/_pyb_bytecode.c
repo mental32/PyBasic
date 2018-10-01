@@ -3,6 +3,18 @@
 
 #include "_pybasic.h"
 
+enum BYTECODE {
+    STORE,
+    LOAD,
+    LOAD_KEYWRD,
+    LOAD_GLOBAL,
+    LOAD_ARGS,
+    CALL,
+    JUMP
+};
+
+typedef enum BYTECODE bytecode_t;
+
 typedef struct {
     PyObject_HEAD
 } ByteCodeInterpreter;
