@@ -3,7 +3,24 @@ import shlex
 
 import _pybasic
 
+# Bytecodes are defined in pybasic_c/_pyb_bytecode.c
+#
+# enum BYTECODE {
+#     STORE,
+#     LOAD,
+#     LOAD_KEYWRD,
+#     LOAD_GLOBAL,
+#     LOAD_ARGS,
+#     CALL,
+#     JUMP
+# };
+
 RE_DIGIT = r'((\d|\d_)\d)'
+
+keywords = {
+    'let': [],
+}
+
 
 class Interpreter(_pybasic.ByteCodeInterpreter):
     def __init__(self, *args, **kwargs):
@@ -14,19 +31,28 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
     def __repr__(self):
         return '<pybasic.Interpreter: state="%s">' % 'IDLE'
 
-    def __enter__(self):
-        return self
+    def _tokenize(self, source):
+        return list(iter(shlex.shlex(source).get_token, ''))
 
-    def __exit__(self, *args):
-        pass
+    def _compile_tokens(self, tokens):
+        bytecode = []
 
-    def __tokenize(self, source):
-        return shlex.split(source)
+        for token in tokes:
+            value = keywords.get(token)
+
+            if value is not None:
+                bytecode += val
+                continue
+
+        return bytecode
 
     def run_simple(self, source):
         ln, *tokens = self._tokenize(source)
 
-        self._code[ln] = tokens;
+        if not _pybasic.is_integer(ln):
+            raise ValueError("Invalid line number.")
+
+        self._code[ln] = tokens
 
         # print(_pybasic.is_integer(ln))
 
