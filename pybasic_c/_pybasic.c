@@ -3,21 +3,7 @@
 #define PYBASIC_CORE
 #include "_pybasic.h"
 
-static PyObject *
-validate_source_structure(PyObject *self, PyObject *args)
-{
-    const char *source;
-
-    if (!PyArg_ParseTuple(args, "s", &source))
-        return NULL;
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static PyMethodDef BPyBasicMethods[] = {
-    {"validate",  validate_source_structure, METH_VARARGS, NULL},
-    {"parse", parse_string, METH_VARARGS, NULL},
     {"is_integer", IsInteger, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
