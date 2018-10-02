@@ -42,12 +42,6 @@ ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *) self;
 }
 
-static int
-ByteCodeInterpreter_init(ByteCodeInterpreter *self, PyObject *args, PyObject *kwds)
-{
-    return 0;
-}
-
 static PyObject *
 ByteCodeInterpreter_run(ByteCodeInterpreter *self, PyObject *args)
 {
@@ -79,7 +73,6 @@ PyTypeObject ByteCodeInterpreterType = {
     .tp_new = ByteCodeInterpreter_new,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_dealloc = (destructor) ByteCodeInterpreter_dealloc,
-    .tp_init = (initproc) ByteCodeInterpreter_init,
     .tp_members = ByteCodeInterpreter_members,
     .tp_methods = ByteCodeInterpreter_methods,
 };
