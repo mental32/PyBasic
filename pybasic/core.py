@@ -15,11 +15,10 @@ import _pybasic
 #     JUMP
 # };
 
-RE_DIGIT = r'((\d|\d_)\d)'
+# 10 let x = 7
+# 
 
-keywords = {
-    'let': [],
-}
+RE_DIGIT = r'((\d|\d_)\d)'
 
 
 class Interpreter(_pybasic.ByteCodeInterpreter):
@@ -35,14 +34,12 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
         return list(iter(shlex.shlex(source).get_token, ''))
 
     def _compile_tokens(self, tokens):
+        constants = tuple({t for t in tokens if _pybasic.is_constant(t)})
         bytecode = []
+        i_tokens = iter(tokens)
 
-        for token in tokes:
-            value = keywords.get(token)
-
-            if value is not None:
-                bytecode += val
-                continue
+        for token in i_tokens:
+            pass
 
         return bytecode
 
@@ -52,7 +49,7 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
         if not _pybasic.is_integer(ln):
             raise ValueError("Invalid line number.")
 
-        self._code[ln] = tokens
+        self._code[ln] = self._compile_tokens(tokens)
 
         # print(_pybasic.is_integer(ln))
 
