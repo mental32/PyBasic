@@ -12,7 +12,7 @@ PyObject *IsConstant(PyObject *self, PyObject *args);
 #else
 /* This section is used in modules that use PyBasic's API */
 
-void *Println(const char *string);
+void Println(const char *string);
 PyObject *parse_string(PyObject *self, PyObject *args);
 
 #endif
