@@ -6,6 +6,7 @@
 
 PyTypeObject ByteCodeInterpreterType;
 PyObject *parse_string(PyObject *self, PyObject *args);
+PyObject *IsString(PyObject *self, PyObject *args);
 PyObject *IsInteger(PyObject *self, PyObject *args);
 PyObject *IsConstant(PyObject *self, PyObject *args);
 

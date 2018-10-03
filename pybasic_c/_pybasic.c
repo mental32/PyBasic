@@ -6,6 +6,7 @@
 static PyMethodDef BPyBasicMethods[] = {
     {"is_integer", IsInteger, METH_VARARGS, NULL},
     {"is_constant", IsConstant, METH_VARARGS, NULL},
+    {"is_string", IsString, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
