@@ -6,7 +6,8 @@
 enum BYTECODE {
     STORE,
     LOAD,
-    LOAD_KEYWRD,
+    LOAD_CONST,
+    LOAD_INT_CONST,
     LOAD_GLOBAL,
     LOAD_ARGS,
     CALL,
@@ -56,12 +57,37 @@ ByteCodeInterpreter_run(ByteCodeInterpreter *self, PyObject *args)
     return Py_None;
 }
 
+static PyObject *
+ByteCodeInterpreter_eval_expression(ByteCodeInterpreter *self, PyObject *args)
+{
+    const char *expression;
+    long type = 1;
+    long p_len = 1;
+
+    int speech = 0;
+
+    if (!PyArg_ParseTuple(args, "s", &expression)) {
+        return NULL;
+    }
+
+    for (size_t i = 0; i < strlen(expression); i++) {
+        if (expression[i] == '"') {
+            speech = !speech;
+        }
+
+        p_len++;
+    }
+
+    return PyLong_FromLong(p_len);
+}
+
 static PyMemberDef ByteCodeInterpreter_members[] = {
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef ByteCodeInterpreter_methods[] = {
     {"run", (PyCFunction) ByteCodeInterpreter_run, METH_VARARGS, "Run the interpreter."},
+    {"eval", (PyCFunction) ByteCodeInterpreter_eval_expression, METH_VARARGS, "Evaluate an expression."},
     {NULL}  /* Sentinel */
 };
 
