@@ -3,22 +3,23 @@ import shlex
 
 import _pybasic
 
-# Bytecodes are defined in pybasic_c/_pyb_bytecode.c
-#
-# enum BYTECODE {
-#     STORE,
-#     LOAD,
-#     LOAD_KEYWRD,
-#     LOAD_GLOBAL,
-#     LOAD_ARGS,
-#     CALL,
-#     JUMP
-# };
+from .errors import BadSyntax
 
-# 10 let x = 7
-# 
+# Bytecodes are defined in pybasic_c/_pyb_bytecode.c
 
 RE_DIGIT = r'((\d|\d_)\d)'
+
+RE_PRINT = r'(print|PRINT) (\(.*\)|.*)'
+RE_GOTO = r'(goto|GOTO) (\d{1,3})'
+RE_LET = r'(let|LET) ([A-Za-z_]*)( = |=)(.*)'
+RE_IF = r'(if|IF) (.*) (goto|GOTO) (\d{1,3})'
+RE_FOR = r'(for|FOR) (.*) (to|TO) (.*) ((step|STEP) \d{1,9}|)'
+
+patterns = {
+    RE_PRINT: 'print',
+    RE_LET: 'let',
+    RE_IF: 'if',
+}
 
 
 class Interpreter(_pybasic.ByteCodeInterpreter):
@@ -26,6 +27,8 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
         super().__init__(*args, **kwargs)
         self._code = {}
         self._data = {}
+        self._constants = []
+        self._stack = []
 
     def __repr__(self):
         return '<pybasic.Interpreter: state="%s">' % 'IDLE'
@@ -33,25 +36,39 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
     def _tokenize(self, source):
         return list(iter(shlex.shlex(source).get_token, ''))
 
-    def _compile_tokens(self, tokens):
-        constants = tuple({t for t in tokens if _pybasic.is_constant(t)})
-        bytecode = []
-        i_tokens = iter(tokens)
+    def _handle(self, name, match):
+        if name == 'let':
+            _, varname, _, expr = match.groups()
+            self._data[varname] = expr
+            return []
 
-        for token in i_tokens:
-            pass
+        elif name == 'print':
+            _, expr = match.groups()
+            print(match.groups())
+            print(eval(expr, {}, self._data))
+            return []
 
-        return bytecode
+        elif name == 'goto':
+            _, ln = match.groups()
+            return [0x03, int(ln), 0x08]
+
+        else:
+            return []
 
     def run_simple(self, source):
         ln, *tokens = self._tokenize(source)
+        source_no_ln = source[len(ln):].strip()
+        self._code[ln] = tokens
 
         if not _pybasic.is_integer(ln):
             raise ValueError("Invalid line number.")
 
-        self._code[ln] = self._compile_tokens(tokens)
+        bytecode = []
 
-        # print(_pybasic.is_integer(ln))
+        for pattern, name in patterns.items():
+            match = re.fullmatch(pattern, source_no_ln)
+            if match:
+                bytecode += self._handle(name, match)
 
     def exec_line(self, line_number):
         pass
