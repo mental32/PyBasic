@@ -36,25 +36,6 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
     def _tokenize(self, source):
         return list(iter(shlex.shlex(source).get_token, ''))
 
-    def _handle(self, name, match):
-        if name == 'let':
-            _, varname, _, expr = match.groups()
-            self._data[varname] = expr
-            return []
-
-        elif name == 'print':
-            _, expr = match.groups()
-            print(match.groups())
-            print(eval(expr, {}, self._data))
-            return []
-
-        elif name == 'goto':
-            _, ln = match.groups()
-            return [0x03, int(ln), 0x08]
-
-        else:
-            return []
-
     def run_simple(self, source):
         ln, *tokens = self._tokenize(source)
         source_no_ln = source[len(ln):].strip()

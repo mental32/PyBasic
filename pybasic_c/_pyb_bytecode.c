@@ -35,11 +35,6 @@ ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     ByteCodeInterpreter *self;
     self = (ByteCodeInterpreter *) type->tp_alloc(type, 0);
-
-    if (self != NULL) {
-
-    }
-
     return (PyObject *) self;
 }
 
@@ -77,9 +72,48 @@ ByteCodeInterpreter_eval_expression(ByteCodeInterpreter *self, PyObject *args)
 
         p_len++;
     }
-
-    return PyLong_FromLong(p_len);
 }
+
+static PyObject *
+ByteCodeInterpreter__compile_match(PyObject *self, PyObject *args)
+{
+    PyObject *bytecode = PyList_New((Py_ssize_t *) 0);
+    PyObject *match;
+    const char *name;
+
+    if (!PyArg_ParseTuple(args, "|sO", &name, &match)) {
+        return NULL;
+    }
+
+    if (name == "let") {
+        PyObject *tmp = PyList_GetItem(match);
+        if (!PyObject_SetItem(self->_data, NULL, NULL)) {
+            return NULL;
+        }
+    }
+
+    PyObject *
+
+}
+
+// def _handle(self, name, match):
+//     if name == 'let':
+//         _, varname, _, expr = match.groups()
+//         self._data[varname] = expr
+//         return []
+
+//     elif name == 'print':
+//         _, expr = match.groups()
+//         print(match.groups())
+//         print(eval(expr, {}, self._data))
+//         return []
+
+//     elif name == 'goto':
+//         _, ln = match.groups()
+//         return [0x03, int(ln), 0x08]
+
+//     else:
+//         return []
 
 static PyMemberDef ByteCodeInterpreter_members[] = {
     {NULL}  /* Sentinel */
@@ -88,6 +122,7 @@ static PyMemberDef ByteCodeInterpreter_members[] = {
 static PyMethodDef ByteCodeInterpreter_methods[] = {
     {"run", (PyCFunction) ByteCodeInterpreter_run, METH_VARARGS, "Run the interpreter."},
     {"eval", (PyCFunction) ByteCodeInterpreter_eval_expression, METH_VARARGS, "Evaluate an expression."},
+    {"_compile_match", (PyCFunction) ByteCodeInterpreter__compile_match, METH_VARARGS, "Compile the bytecode for a regex match."},
     {NULL}  /* Sentinel */
 };
 
