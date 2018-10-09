@@ -92,8 +92,7 @@ ByteCodeInterpreter__compile_match(PyObject *self, PyObject *args)
         }
     }
 
-    PyObject *
-
+    Py_RETURN_NONE;
 }
 
 // def _handle(self, name, match):
