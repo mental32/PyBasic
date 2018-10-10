@@ -2,10 +2,7 @@ import re
 import shlex
 
 import _pybasic
-
 from .errors import BadSyntax
-
-# Bytecodes are defined in pybasic_c/_pyb_bytecode.c
 
 RE_DIGIT = r'((\d|\d_)\d)'
 
@@ -38,18 +35,19 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
 
     def run_simple(self, source):
         ln, *tokens = self._tokenize(source)
-        source_no_ln = source[len(ln):].strip()
-        self._code[ln] = tokens
 
         if not _pybasic.is_integer(ln):
             raise ValueError("Invalid line number.")
+
+        source_no_ln = source[len(ln):].strip()
+        self._code[ln] = tokens
 
         bytecode = []
 
         for pattern, name in patterns.items():
             match = re.fullmatch(pattern, source_no_ln)
             if match:
-                bytecode += self._handle(name, match)
+                bytecode += self._compile_match(name, match)
 
     def exec_line(self, line_number):
         pass
