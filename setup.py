@@ -3,8 +3,8 @@ from distutils.core import setup, Extension
 extensions = [
     Extension('_pybasic', sources=[
         'pybasic_c/_pybasic.c',
-        'pybasic_c/_pyb_bytecode.c',
-        'pybasic_c/_pyb_helpers.c',
+        'pybasic_c/interpreter.c',
+        'pybasic_c/helpers.c',
     ])
 ]
 

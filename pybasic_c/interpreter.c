@@ -2,19 +2,7 @@
 #include "structmember.h"
 
 #include "_pybasic.h"
-
-enum BYTECODE {
-    STORE,
-    LOAD,
-    LOAD_CONST,
-    LOAD_INT_CONST,
-    LOAD_GLOBAL,
-    LOAD_ARGS,
-    CALL,
-    JUMP
-};
-
-typedef enum BYTECODE bytecode_t;
+#include "instructions.h"
 
 typedef struct {
     PyObject_HEAD
