@@ -1,0 +1,17 @@
+#ifndef PY_BASIC_BYTECODE_INSTRUCTIONS
+#define PY_BASIC_BYTECODE_INSTRUCTIONS
+
+enum BYTECODE {
+    STORE,
+    LOAD,
+    LOAD_CONST,
+    LOAD_INT_CONST,
+    LOAD_GLOBAL,
+    LOAD_ARGS,
+    CALL,
+    JUMP
+};
+
+typedef enum BYTECODE bytecode_t;
+
+#endif
