@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "structmember.h"
+#include "stdint.h"
 
 #include "_pybasic.h"
 #include "instructions.h"
@@ -31,53 +32,46 @@ ByteCodeInterpreter_run(ByteCodeInterpreter *self, PyObject *args)
 {
 
     const char *source;
+    int16_t *line_number;
 
     if (!PyArg_ParseTuple(args, "s", &source)) {
         return NULL;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 ByteCodeInterpreter_eval_expression(ByteCodeInterpreter *self, PyObject *args)
 {
     const char *expression;
-    long type = 1;
-    long p_len = 1;
-
-    int speech = 0;
 
     if (!PyArg_ParseTuple(args, "s", &expression)) {
         return NULL;
     }
 
-    for (size_t i = 0; i < strlen(expression); i++) {
-        if (expression[i] == '"') {
-            speech = !speech;
-        }
-
-        p_len++;
-    }
+    for (size_t i = 0; i < strlen(expression); i++) {}
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 ByteCodeInterpreter__compile_match(PyObject *self, PyObject *args)
 {
-    PyObject *bytecode = PyList_New((Py_ssize_t *) 0);
     PyObject *match;
     const char *name;
+
+    // Bytecode array of 1024 bytes (1KB)
+    uint8_t bytecode[1024];
 
     if (!PyArg_ParseTuple(args, "|sO", &name, &match)) {
         return NULL;
     }
 
     if (name == "let") {
-        PyObject *tmp = PyList_GetItem(match);
-        if (!PyObject_SetItem(self->_data, NULL, NULL)) {
-            return NULL;
-        }
+        bytecode[0] = (uint8_t) _INS_STORE;
+
+        // PyObject *varname = PyList_GetItem(match, 1);
+        // PyObject *expression = PyList_GetItem(match, 3);
     }
 
     Py_RETURN_NONE;
