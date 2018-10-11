@@ -1,13 +1,10 @@
 #include <Python.h>
 #include "structmember.h"
 #include "stdint.h"
+#include "stdbool.h"
 
 #include "_pybasic.h"
 #include "instructions.h"
-
-typedef struct {
-    PyObject_HEAD
-} ByteCodeInterpreter;
 
 static void
 ByteCodeInterpreter_dealloc(ByteCodeInterpreter *self)
@@ -16,6 +13,7 @@ ByteCodeInterpreter_dealloc(ByteCodeInterpreter *self)
     // Py_XDECREF(self->attribute);
     // for every attribute.
 
+    Py_XDECREF(self->_data);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -24,86 +22,77 @@ ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     ByteCodeInterpreter *self;
     self = (ByteCodeInterpreter *) type->tp_alloc(type, 0);
+
+    if (self != NULL) {
+        self->_data = PyDict_New();
+
+        if (self->_data == NULL) {
+            Py_DECREF(self->_data);
+            return NULL;
+        }
+
+        self->ip = 0;
+    }
+
     return (PyObject *) self;
 }
 
 static PyObject *
-ByteCodeInterpreter_run(ByteCodeInterpreter *self, PyObject *args)
+ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
 {
-
     const char *source;
-    int16_t *line_number;
+    bool running = true;
 
     if (!PyArg_ParseTuple(args, "s", &source)) {
         return NULL;
     }
 
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-ByteCodeInterpreter_eval_expression(ByteCodeInterpreter *self, PyObject *args)
-{
-    const char *expression;
-
-    if (!PyArg_ParseTuple(args, "s", &expression)) {
-        return NULL;
-    }
-
-    for (size_t i = 0; i < strlen(expression); i++) {}
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-ByteCodeInterpreter__compile_match(PyObject *self, PyObject *args)
-{
-    PyObject *match;
-    const char *name;
-
-    // Bytecode array of 1024 bytes (1KB)
     uint8_t bytecode[1024];
 
-    if (!PyArg_ParseTuple(args, "|sO", &name, &match)) {
-        return NULL;
-    }
+    _parse_source_to_bytecode(bytecode);
 
-    if (name == "let") {
-        bytecode[0] = (uint8_t) _INS_STORE;
+    while (running) {
+        uint8_t instruction = bytecode[self->ip++];
 
-        // PyObject *varname = PyList_GetItem(match, 1);
-        // PyObject *expression = PyList_GetItem(match, 3);
+        switch (instruction) {
+            case _INS_RETURN: {
+                printf("Exiting PyBASIC VM...(%hu) \n", (unsigned short int) self->ip);
+                running = false;
+                Py_RETURN_PyLong_From_PyBVM_IP(self);
+            }
+        }
     }
 
     Py_RETURN_NONE;
 }
 
-// def _handle(self, name, match):
-//     if name == 'let':
-//         _, varname, _, expr = match.groups()
-//         self._data[varname] = expr
-//         return []
 
-//     elif name == 'print':
-//         _, expr = match.groups()
-//         print(match.groups())
-//         print(eval(expr, {}, self._data))
-//         return []
+// def run_source(self, source):
+//     for line in source.split('\n'):
+//         ln, *tokens = self._tokenize(line)
 
-//     elif name == 'goto':
-//         _, ln = match.groups()
-//         return [0x03, int(ln), 0x08]
+//         if not _pybasic.is_integer(ln):
+//             raise ValueError("Invalid line number.")
 
-//     else:
-//         return []
+//         source_no_ln = line[len(ln):].strip()
+//         self._code[ln] = tokens
+
+//         print(ln, tokens)
+
+//         for pattern, name in patterns.items():
+//             match = re.fullmatch(pattern, source_no_ln)
+//             if match:
+//                 print(match)
+//                 print(self._compile_match(name, match))
+//                 break
+
 
 static PyMemberDef ByteCodeInterpreter_members[] = {
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef ByteCodeInterpreter_methods[] = {
-    {"run", (PyCFunction) ByteCodeInterpreter_run, METH_VARARGS, "Run the interpreter."},
-    {"eval", (PyCFunction) ByteCodeInterpreter_eval_expression, METH_VARARGS, "Evaluate an expression."},
-    {"_compile_match", (PyCFunction) ByteCodeInterpreter__compile_match, METH_VARARGS, "Compile the bytecode for a regex match."},
+    {"run_source", (PyCFunction) ByteCodeInterpreter_run_source, METH_VARARGS, "Run the interpreter."},
     {NULL}  /* Sentinel */
 };
 
