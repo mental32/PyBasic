@@ -22,8 +22,6 @@ patterns = {
 class Interpreter(_pybasic.ByteCodeInterpreter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._code = {}
-        self._data = {}
         self._constants = []
         self._stack = []
 
@@ -32,18 +30,3 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
 
     def _tokenize(self, source):
         return list(iter(shlex.shlex(source).get_token, ''))
-
-    def run_source(self, source):
-        for line in source.split('\n'):
-            ln, *tokens = self._tokenize(line)
-
-            if not _pybasic.is_integer(ln):
-                raise ValueError("Invalid line number.")
-
-            source_no_ln = line[len(ln):].strip()
-            self._code[ln] = tokens
-
-            for pattern, name in patterns.items():
-                match = re.fullmatch(pattern, source_no_ln)
-                if match:
-                    bytecode += self._compile_match(name, match)
