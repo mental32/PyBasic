@@ -4,9 +4,6 @@
 #include "_pybasic.h"
 
 static PyMethodDef BPyBasicMethods[] = {
-    {"is_integer", IsInteger, METH_VARARGS, NULL},
-    {"is_constant", IsConstant, METH_VARARGS, NULL},
-    {"is_string", IsString, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -21,15 +18,17 @@ static struct PyModuleDef BPyBasicModule = {
 PyMODINIT_FUNC
 PyInit__pybasic(void)
 {
-    PyObject *m;
-    if (PyType_Ready(&ByteCodeInterpreterType) < 0)
+    PyObject *module;
+    if (PyType_Ready(&ByteCodeInterpreterType) < 0) {
         return NULL;
+    }
 
-    m = PyModule_Create(&BPyBasicModule);
-    if (m == NULL)
+    module = PyModule_Create(&BPyBasicModule);
+    if (module == NULL) {
         return NULL;
+    }
 
     Py_INCREF(&ByteCodeInterpreterType);
-    PyModule_AddObject(m, "ByteCodeInterpreter", (PyObject *) &ByteCodeInterpreterType);
-    return m;
+    PyModule_AddObject(module, "ByteCodeInterpreter", (PyObject *) &ByteCodeInterpreterType);
+    return module;
 }
