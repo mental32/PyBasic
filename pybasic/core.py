@@ -28,26 +28,22 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
         self._stack = []
 
     def __repr__(self):
-        return '<pybasic.Interpreter: state="%s">' % 'IDLE'
+        return '<pybasic.Interpreter@%s>' % hex(id(self)).upper()
 
     def _tokenize(self, source):
         return list(iter(shlex.shlex(source).get_token, ''))
 
-    def run_simple(self, source):
-        ln, *tokens = self._tokenize(source)
+    def run_source(self, source):
+        for line in source.split('\n'):
+            ln, *tokens = self._tokenize(line)
 
-        if not _pybasic.is_integer(ln):
-            raise ValueError("Invalid line number.")
+            if not _pybasic.is_integer(ln):
+                raise ValueError("Invalid line number.")
 
-        source_no_ln = source[len(ln):].strip()
-        self._code[ln] = tokens
+            source_no_ln = line[len(ln):].strip()
+            self._code[ln] = tokens
 
-        bytecode = []
-
-        for pattern, name in patterns.items():
-            match = re.fullmatch(pattern, source_no_ln)
-            if match:
-                bytecode += self._compile_match(name, match)
-
-    def exec_line(self, line_number):
-        pass
+            for pattern, name in patterns.items():
+                match = re.fullmatch(pattern, source_no_ln)
+                if match:
+                    bytecode += self._compile_match(name, match)
