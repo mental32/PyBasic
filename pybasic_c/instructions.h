@@ -5,6 +5,4 @@ enum BYTECODE {
 	_INS_RETURN
 };
 
-typedef enum BYTECODE bytecode_t;
-
 #endif
