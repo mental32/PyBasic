@@ -6,12 +6,7 @@ if '.' not in sys.path:
 from pybasic import Interpreter
 
 if __name__ == '__main__':
-	i = Interpreter()
+	_pybvm = Interpreter()
 
-	print('-' * 20)
-
-	with open('test.bas') as inf:
-		for line in inf:
-			i.run_simple(line.strip())
-
-    # return Interpreter().run()
+	with open(sys.argv[1]) as inf:
+		_pybvm.run_source(inf.read())
