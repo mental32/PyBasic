@@ -26,7 +26,7 @@ class Interpreter(_pybasic.ByteCodeInterpreter):
         self._stack = []
 
     def __repr__(self):
-        return '<pybasic.Interpreter@%s>' % hex(id(self)).upper()
+        return '<pybasic.Interpreter @ %s>' % hex(id(self)).upper()
 
     def _tokenize(self, source):
         return list(iter(shlex.shlex(source).get_token, ''))
