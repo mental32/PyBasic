@@ -94,17 +94,15 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
             case _INS_BUILD_STR: {
                 stack[sp++] = bytecode[self->ip++];
 
-                int i = 0;
-                char *_str;
-                size_t _str_size = stack[sp - 1] + 1;
-                _str = (char *) malloc(_str_size);
+                size_t i = 0, _str_size = stack[sp - 1] + 1;
+                char *string = (char *) malloc(_str_size);
 
-                while (i < (int) _str_size) {
-                    _str[i] = bytecode[self->ip++];
+                while (i < _str_size) {
+                    string[i] = bytecode[self->ip++];
                     i++;
                 }
 
-                _str[i] = '\0';
+                string[i] = '\0';
 
                 sp = 0;
                 break;
@@ -114,7 +112,6 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
 
     Py_RETURN_NONE;
 }
-
 
 // def run_source(self, source):
 //     for line in source.split('\n'):
@@ -134,7 +131,6 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
 //                 print(match)
 //                 print(self._compile_match(name, match))
 //                 break
-
 
 static PyMemberDef ByteCodeInterpreter_members[] = {
     {"_data", T_OBJECT_EX, offsetof(ByteCodeInterpreter, _data), 0, "interpreter namespace"},
