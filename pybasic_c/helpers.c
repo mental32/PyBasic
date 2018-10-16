@@ -1,7 +1,5 @@
 #include <Python.h>
 
-#include "_pybasic.h"
-
 void
 Println(const char *string)
 {
