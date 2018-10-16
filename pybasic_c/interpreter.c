@@ -6,6 +6,22 @@
 #include "_pybasic.h"
 #include "instructions.h"
 
+typedef struct {
+    PyObject_HEAD
+    PyObject *_data;
+    uint16_t ip;
+    bool _running;
+} ByteCodeInterpreter;
+
+
+inline PyObject *
+Py_RETURN_From_PyBVM(ByteCodeInterpreter *self) {
+    self->_running = false;
+    PyObject *insp = PyLong_FromLong((long) self->ip);
+    Py_INCREF(insp);
+    return insp;
+}
+
 static void
 ByteCodeInterpreter_dealloc(ByteCodeInterpreter *self)
 {
@@ -32,6 +48,7 @@ ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
 
         self->ip = 0;
+        self->_running = false;
     }
 
     return (PyObject *) self;
@@ -41,24 +58,56 @@ static PyObject *
 ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
 {
     const char *source;
-    bool running = true;
+
+    // TODO: Bytecode parsing
+    // example of hello world
+    // {_INS_BUILD_STR, 0x0D, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, _INS_RETURN}
+
+    uint8_t bytecode[1024];
+    uint8_t stack[512];
+
+    long sp = 0;
 
     if (!PyArg_ParseTuple(args, "s", &source)) {
         return NULL;
     }
 
-    uint8_t bytecode[1024];
+    self->_running = true;
 
-    _parse_source_to_bytecode(bytecode);
+    // Just in case we manage to fill up the bytecode buffer
+    // exit from the virtual machine unconditionally.
+    bytecode[1023] = _INS_RETURN;
 
-    while (running) {
+    // _parse_source_to_bytecode(bytecode, source);
+
+    while (self->_running) {
         uint8_t instruction = bytecode[self->ip++];
 
         switch (instruction) {
             case _INS_RETURN: {
-                printf("Exiting PyBASIC VM...(%hu) \n", (unsigned short int) self->ip);
-                running = false;
-                Py_RETURN_PyLong_From_PyBVM_IP(self);
+                Py_RETURN_From_PyBVM(self);
+            }
+            case _INS_LITERAL: {
+                stack[sp++] = bytecode[self->ip++];
+                break;
+            }
+            case _INS_BUILD_STR: {
+                stack[sp++] = bytecode[self->ip++];
+
+                int i = 0;
+                char *_str;
+                size_t _str_size = stack[sp - 1] + 1;
+                _str = (char *) malloc(_str_size);
+
+                while (i < (int) _str_size) {
+                    _str[i] = bytecode[self->ip++];
+                    i++;
+                }
+
+                _str[i] = '\0';
+
+                sp = 0;
+                break;
             }
         }
     }
@@ -88,6 +137,7 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
 
 
 static PyMemberDef ByteCodeInterpreter_members[] = {
+    {"_data", T_OBJECT_EX, offsetof(ByteCodeInterpreter, _data), 0, "interpreter namespace"},
     {NULL}  /* Sentinel */
 };
 
