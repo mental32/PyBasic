@@ -5,6 +5,7 @@
 
 #include "_pybasic.h"
 #include "instructions.h"
+#include "object.h"
 
 typedef struct {
     PyObject_HEAD
@@ -12,7 +13,6 @@ typedef struct {
     uint16_t ip;
     bool _running;
 } ByteCodeInterpreter;
-
 
 inline PyObject *
 Py_RETURN_From_PyBVM(ByteCodeInterpreter *self) {
@@ -64,7 +64,7 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
     // {_INS_BUILD_STR, 0x0D, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, _INS_RETURN}
 
     uint8_t bytecode[1024];
-    uint8_t stack[512];
+    Object *stack[512];
 
     long sp = 0;
 
@@ -88,23 +88,16 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
                 Py_RETURN_From_PyBVM(self);
             }
             case _INS_LITERAL: {
-                stack[sp++] = bytecode[self->ip++];
+                stack[sp++] = newObject(_obj_tp_long, (void *)bytecode[self->ip++]);
                 break;
             }
             case _INS_BUILD_STR: {
-                stack[sp++] = bytecode[self->ip++];
-
-                size_t i = 0, _str_size = stack[sp - 1] + 1;
-                char *string = (char *) malloc(_str_size);
-
-                while (i < _str_size) {
-                    string[i] = bytecode[self->ip++];
-                    i++;
-                }
-
-                string[i] = '\0';
-
-                sp = 0;
+                size_t size = bytecode[self->ip++];
+                char* string = malloc(size + 1);
+                memcpy(string, &bytecode[self->ip], size);
+                string[size] = '\0';
+                self->ip += size;
+                stack[sp++] = newObject(_obj_tp_str, (void *)string);
                 break;
             }
         }
@@ -112,25 +105,6 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
 
     Py_RETURN_NONE;
 }
-
-// def run_source(self, source):
-//     for line in source.split('\n'):
-//         ln, *tokens = self._tokenize(line)
-
-//         if not _pybasic.is_integer(ln):
-//             raise ValueError("Invalid line number.")
-
-//         source_no_ln = line[len(ln):].strip()
-//         self._code[ln] = tokens
-
-//         print(ln, tokens)
-
-//         for pattern, name in patterns.items():
-//             match = re.fullmatch(pattern, source_no_ln)
-//             if match:
-//                 print(match)
-//                 print(self._compile_match(name, match))
-//                 break
 
 static PyMemberDef ByteCodeInterpreter_members[] = {
     {"_data", T_OBJECT_EX, offsetof(ByteCodeInterpreter, _data), 0, "interpreter namespace"},
