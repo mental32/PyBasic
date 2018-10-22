@@ -3,7 +3,18 @@
 #define PYBASIC_CORE
 #include "_pybasic.h"
 
+static PyObject *
+set_tokenizer(PyObject *self, PyObject *args)
+{
+    if (!PyArg_ParseTuple(args, "O", &tokenizer)) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef BPyBasicMethods[] = {
+    {"set_tokenizer", set_tokenizer, METH_VARARGS, "Set the default tokenizer used."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
