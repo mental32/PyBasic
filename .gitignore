@@ -104,3 +104,5 @@ ENV/
 _old/
 
 test\.py
+
+*.bas
