@@ -17,7 +17,6 @@ PyObject *IsConstant(PyObject *self, PyObject *args);
 /* This section is used in modules that use PyBasic's API */
 
 void Println(const char *string);
-void _parse_source_to_bytecode(uint8_t *buf, const char *source);
 
 #endif
 #endif
