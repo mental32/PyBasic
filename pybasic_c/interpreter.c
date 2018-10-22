@@ -1,112 +1,19 @@
 #include <Python.h>
-#include "structmember.h"
-#include "stdint.h"
-#include "stdbool.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <structmember.h>
 
-#include "_pybasic.h"
+#include "interpreter.h"
 #include "instructions.h"
 #include "object.h"
+#include "parser.h"
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *_data;
-    uint16_t ip;
-    bool _running;
-} ByteCodeInterpreter;
-
-inline PyObject *
-Py_RETURN_From_PyBVM(ByteCodeInterpreter *self) {
-    self->_running = false;
-    PyObject *insp = PyLong_FromLong((long) self->ip);
-    Py_INCREF(insp);
-    return insp;
-}
-
-static void
-ByteCodeInterpreter_dealloc(ByteCodeInterpreter *self)
-{
-    // Recipe for deallocation is just
-    // Py_XDECREF(self->attribute);
-    // for every attribute.
-
-    Py_XDECREF(self->_data);
-    Py_TYPE(self)->tp_free((PyObject *) self);
-}
-
-static PyObject *
-ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    ByteCodeInterpreter *self;
-    self = (ByteCodeInterpreter *) type->tp_alloc(type, 0);
-
-    if (self != NULL) {
-        self->_data = PyDict_New();
-
-        if (self->_data == NULL) {
-            Py_DECREF(self->_data);
-            return NULL;
-        }
-
-        self->ip = 0;
-        self->_running = false;
-    }
-
-    return (PyObject *) self;
-}
-
-static PyObject *
-ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
-{
-    const char *source;
-
-    // TODO: Bytecode parsing
-    // example of hello world
-    // {_INS_BUILD_STR, 0x0D, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, _INS_RETURN}
-
-    uint8_t bytecode[1024];
-    Object *stack[512];
-
-    long sp = 0;
-
-    if (!PyArg_ParseTuple(args, "s", &source)) {
-        return NULL;
-    }
-
-    self->_running = true;
-
-    // Just in case we manage to fill up the bytecode buffer
-    // exit from the virtual machine unconditionally.
-    bytecode[1023] = _INS_RETURN;
-
-    // _parse_source_to_bytecode(bytecode, source);
-
-    while (self->_running) {
-        uint8_t instruction = bytecode[self->ip++];
-
-        switch (instruction) {
-            case _INS_RETURN: {
-                Py_RETURN_From_PyBVM(self);
-            }
-            case _INS_LITERAL: {
-                stack[sp++] = newObject(_obj_tp_long, (void *)bytecode[self->ip++]);
-                break;
-            }
-            case _INS_BUILD_STR: {
-                size_t size = bytecode[self->ip++];
-                char* string = malloc(size + 1);
-                memcpy(string, &bytecode[self->ip], size);
-                string[size] = '\0';
-                self->ip += size;
-                stack[sp++] = newObject(_obj_tp_str, (void *)string);
-                break;
-            }
-        }
-    }
-
-    Py_RETURN_NONE;
-}
+static PyObject *ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args);
+static PyObject *ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+static void ByteCodeInterpreter_dealloc(ByteCodeInterpreter *self);
 
 static PyMemberDef ByteCodeInterpreter_members[] = {
+    {"_constants", T_OBJECT_EX, offsetof(ByteCodeInterpreter, _constants), 0, "source constants"},
     {"_data", T_OBJECT_EX, offsetof(ByteCodeInterpreter, _data), 0, "interpreter namespace"},
     {NULL}  /* Sentinel */
 };
@@ -127,3 +34,132 @@ PyTypeObject ByteCodeInterpreterType = {
     .tp_members = ByteCodeInterpreter_members,
     .tp_methods = ByteCodeInterpreter_methods,
 };
+
+static void
+ByteCodeInterpreter_dealloc(ByteCodeInterpreter *self)
+{
+    // Recipe for deallocation is just
+    // Py_XDECREF(self->attribute);
+    // for every attribute.
+
+    Py_XDECREF(self->_data);
+    Py_XDECREF(self->_constants);
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+static PyObject *
+ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    ByteCodeInterpreter *self;
+    self = (ByteCodeInterpreter *) type->tp_alloc(type, 0);
+
+    if (self != NULL) {
+        self->_data = PyDict_New();
+
+        if (self->_data == NULL) {
+            Py_DECREF(self->_data);
+            return NULL;
+        }
+
+        self->_constants = PyList_New(0);
+
+        if (self->_constants == NULL) {
+            Py_DECREF(self->_constants);
+            return NULL;
+        }
+
+        self->ip = 0;
+        self->_running = false;
+    }
+
+    return (PyObject *) self;
+}
+
+static PyObject *
+ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
+{
+    const char *source;
+    PyObject *risp = PyLong_FromLong(-1);
+
+    // TODO: Bytecode parsing
+    // example of hello world
+    //
+    // {_INS_LOAD_CONST, 0x01, _INS_RETURN}
+    // {_INS_BUILD_STR, 0x0D, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, _INS_RETURN}
+
+    long insc = 0, i, lnsp = 0, nsp = 0, sp = 0;
+    uint8_t bytecode[1024] = {_INS_LABEL_INT, 0x05, _INS_LOAD_CONST, 1, _INS_PRINT, _INS_GOTO, 0x05};
+    Object *stack[512];
+    Binding *namespace[512];
+    Label *labels[512];
+
+    if (!PyArg_ParseTuple(args, "s", &source)) {
+        return NULL;
+    }
+
+    self->_running = true;
+
+    // if (!bytecode_parse_source(self, bytecode, source)) {
+    //     return NULL;
+    // }
+
+    while (self->_running) {
+        uint8_t instruction = bytecode[self->ip++];
+        insc++;
+
+        switch (instruction) {
+            case _INS_RETURN: {
+                self->_running = false;
+                risp = PyLong_FromLong((long) self->ip);
+                // printf("%s :: %s\n", PyUnicode_AsUTF8(namespace[0]->key), namespace[0]->value->ptr);
+                break;
+            }
+            case _INS_LABEL_INT: {
+                labels[lnsp] = (Label *) malloc(sizeof(Label));
+                labels[lnsp]->ip = self->ip + 1;
+                labels[lnsp++]->name = bytecode[self->ip++];
+                break;
+            }
+            case _INS_GOTO: {
+                for (int k = 0; k < lnsp; k++) {
+                    if (labels[k]->name == bytecode[self->ip++]) {
+                        self->ip = labels[k]->ip;
+                        break;
+                    }
+                }
+                break;
+            }
+            case _INS_PRINT: {
+                while (sp--) {
+                    printf("%ld :: %d :: %s\n", insc, sp, stack[sp]->ptr);
+                }
+                sp = 0;
+                break;
+            }
+            case _INS_STORE: {
+                namespace[nsp++] = newBinding(stack[--sp], PyList_GetItem(self->_constants, bytecode[self->ip++]));
+                break;z
+            }
+            case _INS_LOAD_CONST: {
+                stack[sp++] = newObject(_obj_tp_str, PyUnicode_AsUTF8(PyList_GetItem(self->_constants, bytecode[self->ip++])));
+                break;
+            }
+            case _INS_BUILD_STR: {
+                size_t offset = 0, size = 0;
+
+                while (bytecode[self->ip + offset] != 0)
+                    size++;
+
+                char* string = malloc(size + 1);
+                memcpy(string, &bytecode[self->ip], size);
+                string[size] = '\0';
+                self->ip += size;
+                stack[sp++] = newObject(_obj_tp_str, (void *)string);
+                break;
+            }
+        }
+    }
+
+    Py_INCREF(risp);
+    return risp;
+}
