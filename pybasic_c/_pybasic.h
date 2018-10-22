@@ -9,9 +9,6 @@ PyObject *tokenizer;
 /* This section is used when compiling _pybasic.c */
 
 PyTypeObject ByteCodeInterpreterType;
-PyObject *IsString(PyObject *self, PyObject *args);
-PyObject *IsInteger(PyObject *self, PyObject *args);
-PyObject *IsConstant(PyObject *self, PyObject *args);
 
 #else
 /* This section is used in modules that use PyBasic's API */
