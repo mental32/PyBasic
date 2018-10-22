@@ -1,5 +1,5 @@
-#ifndef PY_BASIC_OBJECT_H
-#define PY_BASIC_OBJECT_H
+#ifndef PYBASIC_OBJECT_H
+#define PYBASIC_OBJECT_H
 
 typedef struct {
     uint8_t tp;
