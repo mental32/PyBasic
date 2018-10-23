@@ -6,7 +6,8 @@
 #include "interpreter.h"
 #include "instructions.h"
 #include "object.h"
-#include "parser.h"
+
+int bytecode_parse_source(ByteCodeInterpreter *vm, uint8_t *buf, const char *source);
 
 static PyObject *ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args);
 static PyObject *ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
