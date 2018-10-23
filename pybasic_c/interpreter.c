@@ -76,43 +76,61 @@ ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *) self;
 }
 
+
 static PyObject *
 ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
 {
     const char *source;
     PyObject *risp = PyLong_FromLong(-1);
 
+    if (!PyArg_ParseTuple(args, "s", &source)) {
+        return NULL;
+    }
+
     // TODO: Bytecode parsing
     // example of hello world
     //
     // {_INS_LOAD_CONST, 0x01, _INS_RETURN}
     // {_INS_BUILD_STR, 0x0D, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, _INS_RETURN}
+    // {_INS_LABEL_INT, 0x05, _INS_LOAD_CONST, 1, _INS_PRINT, _INS_GOTO, 0x05}
 
-    long insc = 0, i, lnsp = 0, nsp = 0, sp = 0;
-    uint8_t bytecode[1024] = {_INS_LABEL_INT, 0x05, _INS_LOAD_CONST, 1, _INS_PRINT, _INS_GOTO, 0x05};
+    long insc = 0, lnsp = 0, nsp = 0, sp = 0;
+    uint8_t bytecode[1024];
     Object *stack[512];
+
     Binding *namespace[512];
     Label *labels[512];
 
-    if (!PyArg_ParseTuple(args, "s", &source)) {
+    if (!bytecode_parse_source(self, bytecode, source)) {
         return NULL;
     }
 
     self->_running = true;
-
-    // if (!bytecode_parse_source(self, bytecode, source)) {
-    //     return NULL;
-    // }
-
     while (self->_running) {
         uint8_t instruction = bytecode[self->ip++];
+
+        // Explicitly handle a nop instruction.
+        // Don't increment the instruction counter (insc)
+        // Just loop around for the next instruction.
+        if (!instruction) {
+            continue;
+        }
+
         insc++;
 
         switch (instruction) {
             case _INS_RETURN: {
                 self->_running = false;
                 risp = PyLong_FromLong((long) self->ip);
-                // printf("%s :: %s\n", PyUnicode_AsUTF8(namespace[0]->key), namespace[0]->value->ptr);
+
+                // Free the stack and it's objects.
+                while(sp >= 0) {
+                    delObject(stack[--sp]);
+                    stack[sp] = NULL;
+                }
+
+                // free(namespace);
+                // free(labels);
                 break;
             }
             case _INS_LABEL_INT: {
@@ -139,7 +157,7 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
             }
             case _INS_STORE: {
                 namespace[nsp++] = newBinding(stack[--sp], PyList_GetItem(self->_constants, bytecode[self->ip++]));
-                break;z
+                break;
             }
             case _INS_LOAD_CONST: {
                 stack[sp++] = newObject(_obj_tp_str, PyUnicode_AsUTF8(PyList_GetItem(self->_constants, bytecode[self->ip++])));
