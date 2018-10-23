@@ -35,8 +35,24 @@ int bytecode_parse_source(ByteCodeInterpreter *vm, uint8_t *buf, const char *sou
             continue;
         }
 
-        // buf[bufptr++] = _INS_LABEL_INT;
-        // buf[bufptr++] = PyList_GetItem(line, index++);
+        long label = strtol(PyUnicode_AsUTF8(PyList_GetItem(line, index++)), &token, 10);
+
+        if (label < 0) {
+            PyErr_SetString(PyExc_SyntaxError, "PyBasic: Label must be greater than zero.");
+            return 0;
+        }
+
+        if (label < 255) {
+            buf[bufptr++] = _INS_LABEL_BYTE;
+            buf[bufptr++] = (uint8_t) label;
+        } else if (label < 65535) {
+            buf[bufptr++] = _INS_LABEL_SHORT;
+            buf[bufptr++] = (uint8_t) (label & 0xff);
+            buf[bufptr++] = (uint8_t) (label >> 8);
+        } else {
+            PyErr_SetString(PyExc_SyntaxError, "PyBasic: Label must be less than 65,535");
+            return 0;
+        }
 
         while (index < length) {
             token = PyUnicode_AsUTF8(PyList_GetItem(line, index));
