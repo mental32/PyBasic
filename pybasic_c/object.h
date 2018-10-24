@@ -42,6 +42,8 @@ Object *newObject(uint8_t type, void *ptr) {
 
 void delObject(Object *obj) {
     free(obj->ptr);
+    obj->ptr = NULL;
+
     free(obj);
     return;
 }
