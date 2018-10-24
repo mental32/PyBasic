@@ -133,7 +133,7 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
                 // free(labels);
                 break;
             }
-            case _INS_LABEL_INT: {
+            case _INS_LABEL_BYTE: {
                 labels[lnsp] = (Label *) malloc(sizeof(Label));
                 labels[lnsp]->ip = self->ip + 1;
                 labels[lnsp++]->name = bytecode[self->ip++];
