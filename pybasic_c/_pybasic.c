@@ -2,8 +2,13 @@
 
 #define PYBASIC_CORE
 #include "_pybasic.h"
+#include "instructions.h"
 
-PyObject *_ins_dict;
+static PyObject *_ins_dict;
+
+#define set(dict, name, value) PyDict_SetItem(dict, name, value)
+#define str(o) PyUnicode_FromString(o)
+#define int(i) PyLong_FromLong(i)
 
 static PyObject *
 set_tokenizer(PyObject *self, PyObject *args)
@@ -13,6 +18,23 @@ set_tokenizer(PyObject *self, PyObject *args)
     }
 
     Py_RETURN_NONE;
+}
+
+static void populate_ins_dict(PyObject *dict) {
+    set(dict, str("nop"),         int(_INS_NOP));
+    set(dict, str("return"),      int(_INS_RETURN));
+
+    set(dict, str("goto"),        int(_INS_GOTO));
+    set(dict, str("label_byte"),  int(_INS_LABEL_BYTE));
+    set(dict, str("label_short"), int(_INS_LABEL_SHORT));
+
+    set(dict, str("load_const"),  int(_INS_LOAD_CONST));
+
+    set(dict, str("store"),       int(_INS_STORE));
+    set(dict, str("load"),        int(_INS_LABEL_SHORT));
+
+    set(dict, str("print"),       int(_INS_PRINT));
+    set(dict, str("build_str"),   int(_INS_BUILD_STR));
 }
 
 static PyObject *
@@ -35,9 +57,20 @@ get_bytecode_instruction(PyObject *self, PyObject *args)
     return item;
 }
 
+static PyObject *
+get_all_bytecode_instructions(PyObject *self, PyObject *args)
+{
+    PyObject *dict = PyDict_New();
+    Py_INCREF(dict);
+
+    populate_ins_dict(dict);
+    return dict;
+}
+
 static PyMethodDef BPyBasicMethods[] = {
     {"set_tokenizer", set_tokenizer, METH_VARARGS, "Set the default tokenizer used."},
     {"get_bytecode", get_bytecode_instruction, METH_VARARGS, "Get the bytecode for an instruction name."},
+    {"get_all_bytecodes", get_all_bytecode_instructions, METH_VARARGS, "Get all bytecode instructions as a dict (name => bytecode)."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -69,7 +102,9 @@ PyInit__pybasic(void)
     } else {
         Py_INCREF(_ins_dict);
     }
-    
+
+    populate_ins_dict(_ins_dict);
+
 
     Py_INCREF(&ByteCodeInterpreterType);
     PyModule_AddObject(module, "ByteCodeInterpreter", (PyObject *) &ByteCodeInterpreterType);
