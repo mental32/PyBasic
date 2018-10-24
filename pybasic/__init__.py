@@ -7,6 +7,7 @@ def _tokenize(source):
 
 _pybasic.set_tokenizer(_tokenize)
 
+from . import parser
 from .core import Interpreter
 
 __version__ = '0.1.0'
