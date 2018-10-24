@@ -164,9 +164,9 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
                 break;
             }
             case _INS_BUILD_STR: {
-                size_t offset = 0, size = 0;
+                size_t size = 0;
 
-                while (bytecode[self->ip + offset] != 0)
+                while (bytecode[self->ip + size] != 0)
                     size++;
 
                 char* string = malloc(size + 1);
