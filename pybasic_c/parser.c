@@ -1,3 +1,4 @@
+#include <Python.h>
 #include <stdint.h>
 
 #include "_pybasic.h"
@@ -12,13 +13,6 @@ Println(const char *string)
     PyFile_WriteString(string, stdout);
     PyFile_WriteString("\n", stdout);
 }
-
-// RE_DIGIT = r'((\d|\d_)\d)'
-// RE_PRINT = r'(print|PRINT) (\(.*\)|.*)'
-// RE_GOTO  = r'(goto|GOTO) (\d{1,3})'
-// RE_LET   = r'(let|LET) ([A-Za-z_]*)( = |=)(.*)'
-// RE_IF    = r'(if|IF) (.*) (goto|GOTO) (\d{1,3})'
-// RE_FOR   = r'(for|FOR) (.*) (to|TO) (.*) ((step|STEP) \d{1,9}|)'
 
 int bytecode_parse_source(ByteCodeInterpreter *vm, uint8_t *buf, const char *source)
 {
