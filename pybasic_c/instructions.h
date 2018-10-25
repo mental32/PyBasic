@@ -10,7 +10,7 @@ enum BYTECODE {
     _INS_LOAD,
     _INS_LOAD_CONST,
     _INS_BUILD_STR,
-    _INS_GOTO,
+    _INS_GOTO_BYTE,
     _INS_PRINT,
 };
 
