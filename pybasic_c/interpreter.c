@@ -87,19 +87,16 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
         return NULL;
     }
 
-    // TODO: Bytecode parsing
     // example of hello world
     //
-    // {_INS_LOAD_CONST, 0x01, _INS_RETURN}
     // {_INS_BUILD_STR, 0x0D, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, _INS_RETURN}
     // {_INS_LABEL_INT, 0x05, _INS_LOAD_CONST, 1, _INS_PRINT, _INS_GOTO, 0x05}
 
     long insc = 0, lnsp = 0, nsp = 0, sp = 0;
     uint8_t bytecode[1024];
-    Object *stack[512];
 
+    Object *stack[512];
     Binding *namespace[512];
-    Label *labels[512];
 
     if (!bytecode_parse_source(self, bytecode, source)) {
         return NULL;
@@ -124,34 +121,47 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
                 risp = PyLong_FromLong((long) self->ip);
 
                 // Free the stack and it's objects.
-                while(sp >= 0) {
-                    delObject(stack[--sp]);
-                    stack[sp] = NULL;
-                }
+                // while(sp >= 0) {
+                //     delObject(stack[--sp]);
+                //     stack[sp] = NULL;
+                // }
 
                 // free(namespace);
                 // free(labels);
                 break;
             }
             case _INS_LABEL_BYTE: {
-                labels[lnsp] = (Label *) malloc(sizeof(Label));
-                labels[lnsp]->ip = self->ip + 1;
-                labels[lnsp++]->name = bytecode[self->ip++];
+                pos = bytecode[self->ip++];
                 break;
             }
-            case _INS_GOTO: {
-                for (int k = 0; k < lnsp; k++) {
-                    if (labels[k]->name == bytecode[self->ip++]) {
-                        self->ip = labels[k]->ip;
-                        break;
+            case _INS_GOTO_BYTE: {
+                uint8_t target = bytecode[self->ip++];
+                short ip = self->ip;
+
+                if (target < pos) {
+                    // Go backwards over the bytecode
+                    while (1) {
+                        if (bytecode[--ip] == _INS_LABEL_BYTE && bytecode[ip + 1] == target)
+                            self->ip = ip
+                            break;
                     }
                 }
+
                 break;
             }
             case _INS_PRINT: {
-                while (sp--) {
-                    printf("%ld :: %d :: %s\n", insc, sp, stack[sp]->ptr);
+                for (long i = 0; i < sp; i++) {
+                    Object *item = stack[i];
+
+                    switch (item->tp) {
+                        case _obj_tp_str: {
+                            printf("%s\t", (char *) item->ptr);
+                            break;
+                        }
+                    }
                 }
+                printf("\n");
+
                 sp = 0;
                 break;
             }
