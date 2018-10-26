@@ -37,6 +37,42 @@ static void populate_ins_dict(PyObject *dict) {
 }
 
 static PyObject *
+token_type(PyObject *self, PyObject *args)
+{
+    const char *token;
+    char *end;
+
+    if (!PyArg_ParseTuple(args, "s", &token)) {
+        return NULL;
+    }
+
+    size_t length = strlen(token);
+
+    if (length == 1) {
+        if (((int) *token) >= 48 && ((int) *token) <= 57) {
+            return PyUnicode_FromString("I");
+        } else {
+            return PyUnicode_FromString("V");
+        }
+    }
+
+    if (token[0] == '"') {
+        if (token[length - 1] == '"') {
+            return PyUnicode_FromString("S");
+        } else {
+            PyErr_SetString(PyExc_ValueError, "Invalid token.");
+            return NULL;
+        }
+    }
+
+    if (strtol(token, &end, 10)) {
+        return PyUnicode_FromString("I");
+    }
+
+    return PyUnicode_FromString("V");
+}
+
+static PyObject *
 set_tokenizer(PyObject *self, PyObject *args)
 {
     if (!PyArg_ParseTuple(args, "O", &tokenizer)) {
@@ -44,20 +80,6 @@ set_tokenizer(PyObject *self, PyObject *args)
     }
 
     Py_RETURN_NONE;
-}
-
-static void populate_ins_dict(PyObject *dict) {
-    PyDict_SetItem(dict, PyUnicode_FromString("nop"),        PyLong_FromLong(_INS_NOP));
-    PyDict_SetItem(dict, PyUnicode_FromString("return"),     PyLong_FromLong(_INS_RETURN));
-
-    
-    PyDict_SetItem(dict, PyUnicode_FromString("store"),      PyLong_FromLong(_INS_STORE_NAME));
-    PyDict_SetItem(dict, PyUnicode_FromString("load"),       PyLong_FromLong(_INS_LOAD_NAME));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("goto"),       PyLong_FromLong(_INS_GOTO));
-    PyDict_SetItem(dict, PyUnicode_FromString("print"),      PyLong_FromLong(_INS_PRINT));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("data_end"),      PyLong_FromLong(_INS_DATA_END));
 }
 
 static PyObject *
@@ -91,6 +113,7 @@ get_all_bytecode_instructions(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef BPyBasicMethods[] = {
+    {"type", token_type, METH_VARARGS, "Get the type of a token."},
     {"set_tokenizer", set_tokenizer, METH_VARARGS, "Set the default tokenizer used."},
     {"get_bytecode", get_bytecode_instruction, METH_VARARGS, "Get the bytecode for an instruction name."},
     {"get_all_bytecodes", get_all_bytecode_instructions, METH_VARARGS, "Get all bytecode instructions as a dict (name => bytecode)."},
