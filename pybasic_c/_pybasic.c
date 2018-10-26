@@ -6,6 +6,36 @@
 
 static PyObject *_ins_dict;
 
+static void populate_ins_dict(PyObject *dict) {
+    PyDict_SetItem(dict, PyUnicode_FromString("nop"),        PyLong_FromLong(_INS_NOP));
+    PyDict_SetItem(dict, PyUnicode_FromString("return"),     PyLong_FromLong(_INS_RETURN));
+
+    
+    PyDict_SetItem(dict, PyUnicode_FromString("store"),      PyLong_FromLong(_INS_STORE_NAME));
+
+    PyDict_SetItem(dict, PyUnicode_FromString("load_const"), PyLong_FromLong(_INS_LOAD_CONST));
+    PyDict_SetItem(dict, PyUnicode_FromString("load_name"),  PyLong_FromLong(_INS_LOAD_NAME));
+
+    PyDict_SetItem(dict, PyUnicode_FromString("load_long"),  PyLong_FromLong(_INS_LOAD_LONG));
+    PyDict_SetItem(dict, PyUnicode_FromString("load_short"), PyLong_FromLong(_INS_LOAD_SHORT));
+    PyDict_SetItem(dict, PyUnicode_FromString("load_byte"),  PyLong_FromLong(_INS_LOAD_BYTE));
+
+    PyDict_SetItem(dict, PyUnicode_FromString("binary_add"), PyLong_FromLong(_INS_BINARY_ADD));
+    PyDict_SetItem(dict, PyUnicode_FromString("binary_sub"), PyLong_FromLong(_INS_BINARY_SUB));
+    PyDict_SetItem(dict, PyUnicode_FromString("binary_mul"), PyLong_FromLong(_INS_BINARY_MUL));
+    PyDict_SetItem(dict, PyUnicode_FromString("binary_div"), PyLong_FromLong(_INS_BINARY_DIV));
+
+    PyDict_SetItem(dict, PyUnicode_FromString("cmp"),        PyLong_FromLong(_INS_CMP));
+    PyDict_SetItem(dict, PyUnicode_FromString("not"),        PyLong_FromLong(_INS_NOT));
+
+    PyDict_SetItem(dict, PyUnicode_FromString("pop_jmp_true"), PyLong_FromLong(_INS_POP_JMP_TRUE));
+
+    PyDict_SetItem(dict, PyUnicode_FromString("goto"),       PyLong_FromLong(_INS_GOTO));
+    PyDict_SetItem(dict, PyUnicode_FromString("print"),      PyLong_FromLong(_INS_PRINT));
+
+    PyDict_SetItem(dict, PyUnicode_FromString("data_end"),   PyLong_FromLong(_INS_DATA_END));
+}
+
 static PyObject *
 set_tokenizer(PyObject *self, PyObject *args)
 {
