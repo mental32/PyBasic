@@ -4,8 +4,6 @@
 #include "_pybasic.h"
 
 #include "instructions.h"
-#include "macros.h"
-
 static PyObject *_ins_dict;
 
 static PyObject *
@@ -19,20 +17,13 @@ set_tokenizer(PyObject *self, PyObject *args)
 }
 
 static void populate_ins_dict(PyObject *dict) {
-    set(dict, string("nop"),         integer(_INS_NOP));
-    set(dict, string("return"),      integer(_INS_RETURN));
+    PyDict_SetItem(dict, PyUnicode_FromString("nop"),        PyLong_FromLong(_INS_NOP));
+    PyDict_SetItem(dict, PyUnicode_FromString("return"),     PyLong_FromLong(_INS_RETURN));
 
-    set(dict, string("goto"),        integer(_INS_GOTO));
-    set(dict, string("label_byte"),  integer(_INS_LABEL_BYTE));
-    set(dict, string("label_short"), integer(_INS_LABEL_SHORT));
+    PyDict_SetItem(dict, PyUnicode_FromString("goto"),       PyLong_FromLong(_INS_GOTO));
+    PyDict_SetItem(dict, PyUnicode_FromString("store"),      PyLong_FromLong(_INS_STORE_NAME));
 
-    set(dict, string("load_const"),  integer(_INS_LOAD_CONST));
-
-    set(dict, string("store"),       integer(_INS_STORE));
-    set(dict, string("load"),        integer(_INS_LABEL_SHORT));
-
-    set(dict, string("print"),       integer(_INS_PRINT));
-    set(dict, string("build_str"),   integer(_INS_BUILD_STR));
+    PyDict_SetItem(dict, PyUnicode_FromString("print"),      PyLong_FromLong(_INS_PRINT));
 }
 
 static PyObject *
