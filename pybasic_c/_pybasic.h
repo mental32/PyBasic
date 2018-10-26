@@ -9,9 +9,5 @@ PyObject *tokenizer;
 
 PyTypeObject ByteCodeInterpreterType;
 
-#else
-
-void Println(const char *string);
-
 #endif
 #endif
