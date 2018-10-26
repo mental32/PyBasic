@@ -6,7 +6,23 @@ enum BYTECODE {
     _INS_RETURN,
 
     _INS_STORE_NAME,
+
     _INS_LOAD_NAME,
+    _INS_LOAD_CONST,
+
+    _INS_LOAD_LONG,
+    _INS_LOAD_SHORT,
+    _INS_LOAD_BYTE,
+
+    _INS_BINARY_ADD,
+    _INS_BINARY_SUB,
+    _INS_BINARY_MUL,
+    _INS_BINARY_DIV,
+
+    _INS_CMP,
+    _INS_NOT,
+
+    _INS_POP_JMP_TRUE,
 
     _INS_GOTO,
     _INS_PRINT,
