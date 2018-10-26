@@ -4,13 +4,11 @@
 enum BYTECODE {
     _INS_NOP,
     _INS_RETURN,
-    _INS_LABEL_BYTE,
-    _INS_LABEL_SHORT,
-    _INS_STORE,
-    _INS_LOAD,
-    _INS_LOAD_CONST,
-    _INS_BUILD_STR,
-    _INS_GOTO_BYTE,
+
+    _INS_STORE_NAME,
+    _INS_LOAD_NAME,
+
+    _INS_GOTO,
     _INS_PRINT,
 };
 
