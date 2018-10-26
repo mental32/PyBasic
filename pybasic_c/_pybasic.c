@@ -2,8 +2,8 @@
 
 #define PYBASIC_CORE
 #include "_pybasic.h"
+#include "bvm/ins.h"
 
-#include "instructions.h"
 static PyObject *_ins_dict;
 
 static PyObject *
