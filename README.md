@@ -12,12 +12,12 @@ Working
  - Printing
  - Assignment
  - Expressions
+ - Flow control
+ - Conditional loops
 
 Planned
 
- - Flow control
  - Builtins
- - Conditional loops
  - I/O
 
 ## Installing
