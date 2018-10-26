@@ -8,23 +8,19 @@ A (dartmouth) BASIC inspired interpreter written in C using CPython.
 
 Working
 
- - Nothing (yet!)
+ - Jumping
+ - Printing
+ - Assignment
+ - Expressions
 
 Planned
 
- - jumping with GOTO
- - Variable assignment
- - IF statements
- - expression evaluation
- - stdlib functions
- - FOR loops
- - using PRINT
- - reading sockets
+ - Flow control
+ - Builtins
+ - Conditional loops
+ - I/O
 
 ## Installing
-
-Installing PyBASIC LTS.
-- `pip3 install pybasic`
 
 Compiling from source.
 - `pip3 install git+https://github.com/mental32/pybasic`
