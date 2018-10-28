@@ -4,7 +4,7 @@
 #include <limits.h>
 
 enum STATUS_CODE {
-    BVM_OK
+    BVM_OK,
     BVM_ABORT
 };
 
