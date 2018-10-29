@@ -36,6 +36,16 @@ typedef struct {
     char **data;
 } VMState;
 
+static inline void pushstack(VMState *vm, Object *item) {
+    vm->stack[vm->sp++] = item;
+}
+
+static inline Object *popstack(VMState *vm) {
+    Object *item = vm->stack[--vm->sp];
+    vm->stack[vm->sp] = NULL;
+    return item;
+}
+
 static inline Object *NewObject(uint8_t tp, void *ptr) {
     Object *obj = malloc(sizeof(Object));
     obj->tp = tp;
