@@ -97,11 +97,10 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
 
     vm->ip = bytecode;
 
-    // Read through data until we hit DATA_END (255)
-    size_t DATA_SIZE = 0;
-    for (uint8_t *size_count = vm->ip; (*size_count++ != (uint8_t) _INS_DATA_END && DATA_SIZE < bytecode_size); DATA_SIZE++);
+    // Read size of constants pool.
+    short DATA_SIZE = *((short*) (vm->ip));
 
-    // Jump ahead of data
+    // Then jump ahead of it.
     vm->ip += DATA_SIZE;
 
     while (vm->_running) {
