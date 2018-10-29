@@ -28,7 +28,7 @@ class Operator:
         self.data = data
 
     @property
-    def as_bvm_ins(self):
+    def ins(self):
         return self.__bvm_ops[self.data]
 
 
@@ -53,15 +53,19 @@ def _get_concrete(token):
 
     return token
 
-def evaluate(constants, tokens):
+def evaluate(data, tokens):
+    flatten = lambda stream: list(p[0] for p in stream)
+
     expr = bytearray()
+    constants, varnames = data
 
     if not tokens:
         return expr
 
     types = {_pybasic.type(t) for t in tokens}
+    typed_tokens = tuple((t, _pybasic.type(t)) for t in tokens)
 
-    if 'V' not in types:
+    if 'S' not in types and 'V' not in types:
         # Expression appears to be static (containing no refrences)
 
         # "Using eval is cheating!" 
@@ -69,8 +73,10 @@ def evaluate(constants, tokens):
         # Ergo to not use eval would be the silly answer
         rv = eval(''.join(tokens))
     else:
-        stream = iter(reversed(tokens))
-        rv = _get_concrete(next(stream))
+        stream = iter(reversed(typed_tokens))
+
+        value, ttype = next(stream)
+        rv = _get_concrete(value)
 
     while True:
         if isinstance(rv, int):
@@ -86,7 +92,7 @@ def evaluate(constants, tokens):
             expr.extend(struct.pack('=?', rv))
 
         elif isinstance(rv, Logic):
-            expr.extend(evaluate(constants, tuple(stream)))
+            expr.extend(evaluate(data, flatten(stream)))
 
             if rv.data[0] == '!':
                 expr.append(_bvm_ins['cmp'])
@@ -95,33 +101,42 @@ def evaluate(constants, tokens):
                 expr.append(_bvm_ins['cmp'])
 
         elif isinstance(rv, Operator):
-            expr.extend(evaluate(constants, tuple(stream)))
-            expr.append(rv.as_bvm_ins)
+            expr.extend(evaluate(data, flatten(stream)))
+            expr.append(rv.ins)
 
         elif isinstance(rv, str):
-            expr.append(_bvm_ins['load_const'])
 
-            if rv not in constants:
-                constants.append(rv)
+            if ttype == 'S':
+                expr.append(_bvm_ins['load_const'])
 
-            expr.append(constants.index(rv))
+                rv = rv[1:-1]
+
+                if rv not in constants:
+                    constants.append(rv)
+
+                expr.append(constants.index(rv))
+            else:
+                expr.append(_bvm_ins['load_name'])
+                expr.append(varnames.index(rv))
 
         if 'V' not in types:
             break
 
         try:
-            rv = _get_concrete(next(stream))
+            value, ttype = next(stream)
+            rv = _get_concrete(value)
         except StopIteration:
             break
 
     return expr
 
 def tokenize(source):
+    _header = bytearray()
     _bytecode = bytearray()
     parsed = {}
     labels = {}
-    refs = {}
     constants = []
+    varnames = []
 
     # While creating the parsed tokens
     # Extract metadata and perform analysis
@@ -138,8 +153,12 @@ def tokenize(source):
         lt = None
 
         for token in it:
-            if token not in _reserved and token not in constants and (token.isalpha() or is_string(token)):
-                constants.append(token)
+            if token not in _reserved:
+                if is_string(token) and token not in constants:
+                    constants.append(token[1:-1])
+
+                elif token.isalpha() and token not in varnames:
+                    varnames.append(token)
 
             elif token == '=' and lt == '!' and rparity & 1:
                 row.pop()
@@ -150,15 +169,7 @@ def tokenize(source):
             row.append(token)
             lt = token
 
-        if 'GOTO' in row:
-            refs[ln] = int(row[row.index('GOTO') + 1])
-
         parsed[ln] = row
-
-    _bytecode.extend(bytes(':'.join(constants), encoding='utf8'))
-    _bytecode.append(_bvm_ins['data_end'])
-
-    _bytecode.append(_bvm_ins['return'])
 
     parsed = {k: parsed[k] for k in sorted(parsed)}
 
@@ -166,17 +177,17 @@ def tokenize(source):
         labels[ln] = [len(_bytecode)]
 
         if src[0] == 'LET':
-            _bytecode.extend(evaluate(constants, src[3:]))
+            _bytecode.extend(evaluate((constants, varnames), src[3:]))
 
-            _bytecode.append(_bvm_ins['load_const'])
-            _bytecode.append(constants.index(src[1]))
+            _bytecode.append(_bvm_ins['load_name'])
+            _bytecode.append(varnames.index(src[1]))
 
             _bytecode.append(_bvm_ins['store'])
 
         elif src[0] == 'IF':
             *e, _g_ln = src[1:]
 
-            _bytecode.extend(evaluate(constants, e[:-1]))
+            _bytecode.extend(evaluate((constants, varnames), e[:-1]))
 
             _bytecode.append(_bvm_ins['pop_jmp_true'])
             _bytecode.extend(struct.pack('=h', labels[int(_g_ln)][0] - labels[ln][0]))
@@ -185,28 +196,36 @@ def tokenize(source):
             _bytecode.append(_bvm_ins['return'])
 
         elif src[0] == 'PRINT':
-            _bytecode.extend(evaluate(constants, src[1:]))
+            _bytecode.extend(evaluate((constants, varnames), src[1:]))
             _bytecode.append(_bvm_ins['print'])
 
         elif len(src) >= 3 and src[1] == '=' and src[2] != '=':
             # re assignment
-            _bytecode.extend(evaluate(constants, src[1:]))
+            _bytecode.extend(evaluate((constants, varnames), src[2:]))
 
-            _bytecode.append(_bvm_ins['load_const'])
-            _bytecode.append(constants.index(src[0]))
+            _bytecode.append(_bvm_ins['load_name'])
+            _bytecode.append(varnames.index(src[0]))
 
             _bytecode.append(_bvm_ins['store'])
         else:
-            _bytecode.extend(evaluate(constants, src))
+            _bytecode.extend(evaluate((constants, varnames), src))
 
         labels[ln].append(len(_bytecode) - labels[ln][0])
 
     # pprint.pprint((parsed, constants))
 
+    byte_consts = (bytes(c, encoding='utf8') + b'\x00' for c in constants)
+    for value in byte_consts:
+        _header += value
+
+    _header = (bytearray() + struct.pack('=H', len(_header) + 2)) + _header
+
     # litecode = list(_bytecode)
     # for ln, data in labels.items():
     #     start, size = data
     #     print(ln, litecode[start:start + size])
+
+    _bytecode = _header + _bytecode
 
     # pprint.pprint(_bytecode)
 
