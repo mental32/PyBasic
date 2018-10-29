@@ -75,29 +75,18 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     vm->ip = bytecode;
 
     // Read size of constants pool.
-    short DATA_SIZE = *((short*) (vm->ip));
-    short dp = 0;
+    short dp = 0, data_size = *((short*) (vm->ip));
+    char *p = vm->ip + 2, *end = (char *)(data_size + vm->ip + 2);
 
-    for (short pos = 0; pos < (DATA_SIZE - 2); pos++) {
-        vm->data[dp++] = (char *) (vm->ip + 2) + pos;
-        pos += strlen((char *) (vm->ip + (2 + pos))) + 1;
+    while (p < end) {
+        vm->data[dp++] = p;
+        p += strlen(p) + 1;
     }
 
     // Then jump ahead of it.
-    vm->ip += DATA_SIZE;
+    vm->ip += data_size;
 
     while (vm->_running) {
-        vm->ip++;
-
-        // Explicitly handle a nop instruction (0).
-        // Don't increment the instruction counter (insc)
-        // Just loop around for the next instruction.
-        if (!*vm->ip) {
-            continue;
-        }
-
-        vm->insc++;
-
         switch (*vm->ip) {
             case _INS_RETURN: {
                 vm->_running = 0;
