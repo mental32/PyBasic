@@ -95,56 +95,62 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_STORE_NAME: {
+                Object *name = popstack(vm);
+                Object *value = popstack(vm);
+                break;
             }
 
             case _INS_LOAD_NAME: {
-
+                vm->stack[vm->sp++] = NewObject(_obj_tp_byte, (uint8_t *) vm->ip);
+                vm->ip++;
+                break;
             }
 
             case _INS_LOAD_CONST: {
-                vm->stack[vm->sp++] = NewObject(_obj_tp_str, vm->data[*vm->ip++]);
+                vm->ip++;
+                vm->stack[vm->sp++] = NewObject(_obj_tp_str, vm->data[*vm->ip]);
                 break;
             }
 
             case _INS_LOAD_LONG: {
-
+                break;
             }
 
             case _INS_LOAD_SHORT: {
-
+                break;
             }
 
             case _INS_LOAD_BYTE: {
-                vm->stack[vm->sp++] = NewObject(_obj_tp_byte, ((uint8_t *) (vm->ip++)));
+                vm->stack[vm->sp++] = NewObject(_obj_tp_byte, ((uint8_t*) (vm->ip++)));
                 break;
             }
 
             case _INS_BINARY_ADD: {
-
+                break;
             }
 
             case _INS_BINARY_SUB: {
-
+                break;
             }
 
             case _INS_BINARY_MUL: {
-
+                break;
             }
 
             case _INS_BINARY_DIV: {
-
+                break;
             }
 
             case _INS_CMP: {
-
+                break;
             }
 
             case _INS_NOT: {
-
+                break;
             }
 
             case _INS_POP_JMP_TRUE: {
-
+                break;
             }
 
             case _INS_GOTO: {
@@ -152,6 +158,9 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 break;
             }
         }
+
+        vm->ip++;
+        vm->insc++;
     }
 
     return _status;
