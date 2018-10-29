@@ -32,8 +32,6 @@ static void populate_ins_dict(PyObject *dict) {
 
     PyDict_SetItem(dict, PyUnicode_FromString("goto"),       PyLong_FromLong(_INS_GOTO));
     PyDict_SetItem(dict, PyUnicode_FromString("print"),      PyLong_FromLong(_INS_PRINT));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("data_end"),   PyLong_FromLong(_INS_DATA_END));
 }
 
 static PyObject *

@@ -27,7 +27,6 @@ enum BYTECODE {
     _INS_GOTO,
     _INS_PRINT,
 
-    _INS_DATA_END = 255
 };
 
 #endif
