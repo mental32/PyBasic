@@ -32,44 +32,9 @@ typedef struct {
     size_t sp;
 
     Object **stack;
+
+    char **data;
 } VMState;
-
-static const uint16_t PEEK_CONST(uint8_t *bytecode, size_t index) {
-    const char *string = bytecode;
-    size_t pos = 0;
-
-    uint8_t offset = 0;
-    uint8_t size = 0;
-
-    while (1) {
-        if (pos == index) {
-            while (*string != ':') {
-                string++;
-                size++;
-            }
-
-            break;
-        }
-
-        while (*string != ':') {
-            string++;
-            offset++;
-        }
-
-        pos++;
-    }
-
-    return (((uint16_t) offset) << 8) | ((uint16_t) size);
-}
-
-static inline char *READ_CONST(uint8_t *bytecode, size_t index) {
-    char *dest;
-    uint16_t data = PEEK_CONST(bytecode, index);
-    dest = (char *) malloc(sizeof(char) * ((data & 0xff) + 1));
-    memcpy(dest, bytecode + (data >> 8), (data & 0xff));
-    dest[(data & 0xff)] = '\0';
-    return dest;
-}
 
 static inline Object *NewObject(uint8_t tp, void *ptr) {
     Object *obj = malloc(sizeof(Object));
@@ -92,6 +57,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     vm->_running = 1;
     vm->insc = 0;
 
+    vm->data = (char **) malloc((size_t) 20);
+
     vm->stack = (Object **) malloc((size_t) 20);
     vm->sp = 0;
 
@@ -99,6 +66,12 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
 
     // Read size of constants pool.
     short DATA_SIZE = *((short*) (vm->ip));
+    short dp = 0;
+
+    for (short pos = 0; pos < (DATA_SIZE - 2); pos++) {
+        vm->data[dp++] = (char *) (vm->ip + 2) + pos;
+        pos += strlen((char *) (vm->ip + (2 + pos))) + 1;
+    }
 
     // Then jump ahead of it.
     vm->ip += DATA_SIZE;
@@ -130,7 +103,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_LOAD_CONST: {
-                vm->stack[vm->sp++] = NewObject(_obj_tp_str, bytecode + (PEEK_CONST(bytecode, *vm->ip) >> 8));
+                vm->stack[vm->sp++] = NewObject(_obj_tp_str, vm->data[*vm->ip++]);
+                break;
             }
 
             case _INS_LOAD_LONG: {
@@ -143,6 +117,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
 
             case _INS_LOAD_BYTE: {
                 vm->stack[vm->sp++] = NewObject(_obj_tp_byte, ((uint8_t *) (vm->ip++)));
+                break;
             }
 
             case _INS_BINARY_ADD: {
