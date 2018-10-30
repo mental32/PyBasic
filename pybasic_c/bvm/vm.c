@@ -7,13 +7,19 @@
 
 #include "ins.h"
 
-/*
-
-*/
 enum ObjectType {
-    _obj_tp_long,
-    _obj_tp_byte,
-    _obj_tp_str,
+    _obj_tp_str = 1,
+
+    _obj_tp_u8,
+    _obj_tp_u16,
+    _obj_tp_u32,
+
+    _obj_tp_generic_ref,
+    _obj_tp_generic_int,
+    _obj_tp_generic_str,
+    _obj_tp_generic_flt,
+
+    _obj_tp_literal = 128,
 };
 
 typedef struct {
