@@ -175,18 +175,58 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_BINARY_ADD: {
+                Object *_ref_a = popstack(vm);
+
+                Object *a = resolve(vm, _ref_a);
+                Object *b = resolve(vm, popstack(vm));
+
+                if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
+                    RebaseObject(_ref_a, _BYTE, *((uint8_t*)a->ptr) + *((uint8_t*)b->ptr));
+                    pushstack(vm, _ref_a);
+                }
+
                 break;
             }
 
             case _INS_BINARY_SUB: {
+                Object *_ref_a = popstack(vm);
+
+                Object *a = resolve(vm, _ref_a);
+                Object *b = resolve(vm, popstack(vm));
+
+                if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
+                    RebaseObject(_ref_a, _BYTE, *((uint8_t*)a->ptr) - *((uint8_t*)b->ptr));
+                    pushstack(vm, _ref_a);
+                }
+
                 break;
             }
 
             case _INS_BINARY_MUL: {
+                Object *_ref_a = popstack(vm);
+
+                Object *a = resolve(vm, _ref_a);
+                Object *b = resolve(vm, popstack(vm));
+
+                if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
+                    RebaseObject(_ref_a, _BYTE, *((uint8_t*)a->ptr) * *((uint8_t*)b->ptr));
+                    pushstack(vm, _ref_a);
+                }
+
                 break;
             }
 
             case _INS_BINARY_DIV: {
+                Object *_ref_a = popstack(vm);
+
+                Object *a = resolve(vm, _ref_a);
+                Object *b = resolve(vm, popstack(vm));
+
+                if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
+                    RebaseObject(_ref_a, _BYTE, *((uint8_t*)a->ptr) / *((uint8_t*)b->ptr));
+                    pushstack(vm, _ref_a);
+                }
+
                 break;
             }
 
