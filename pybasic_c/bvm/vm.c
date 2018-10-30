@@ -51,6 +51,20 @@ typedef struct {
     Object **varspace;
 } VMState;
 
+static void PrintObject(Object *obj) {
+    uint8_t tp = obj->tp;
+
+    if (tp == _obj_tp_str) {
+        printf("%s", (char*)obj->ptr);
+    } else if (tp == BYTE) {
+        printf("%d", *((uint8_t*)obj->ptr));
+    } else if (tp == _BYTE) {
+        printf("%d", ((uint8_t*)obj->ptr));
+    }
+
+    return;
+}
+
 static inline void pushstack(VMState *vm, Object *item) {
     vm->stack[vm->sp++] = item;
 }
