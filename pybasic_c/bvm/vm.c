@@ -42,12 +42,13 @@ typedef struct {
     uint8_t *ip;
     uint8_t _running;
 
+    char **data;
+
     size_t insc;
     size_t sp;
 
     Object **stack;
-
-    char **data;
+    Object **varspace;
 } VMState;
 
 static inline void pushstack(VMState *vm, Object *item) {
