@@ -75,6 +75,14 @@ static inline Object *popstack(VMState *vm) {
     return item;
 }
 
+static inline Object *resolve(VMState *vm, Object *ref) {
+    if (ref->tp == _obj_tp_generic_ref) {
+        return vm->varspace[*((uint8_t *)ref->ptr)];
+    } else {
+        return ref;
+    }
+}
+
 static inline Object *NewObject(uint8_t tp, void *ptr) {
     Object *obj = malloc(sizeof(Object));
     obj->tp = tp;
@@ -102,6 +110,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     vm->sp = 0;
 
     vm->ip = bytecode;
+    vm->varspace    = (Object **) malloc((size_t) 20);
 
     // Read size of constants pool.
     short dp = 0, data_size = *((short*) (vm->ip));
