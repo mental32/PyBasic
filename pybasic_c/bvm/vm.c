@@ -22,6 +22,14 @@ enum ObjectType {
     _obj_tp_literal = 128,
 };
 
+#define BYTE  (_obj_tp_u8  | _obj_tp_generic_int)
+#define SHORT (_obj_tp_u16 | _obj_tp_generic_int)
+#define LONG  (_obj_tp_u32 | _obj_tp_generic_int)
+
+#define _BYTE  (BYTE  | _obj_tp_literal)
+#define _SHORT (SHORT | _obj_tp_literal)
+#define _LONG  (LONG  | _obj_tp_literal)
+
 typedef struct {
     uint8_t tp;
     void *ptr;
