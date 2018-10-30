@@ -107,15 +107,16 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     }
 
     VMState *vm = (VMState *) malloc(sizeof(VMState));
-    vm->_running = 1;
-    vm->insc = 0;
-
-    vm->data = (char **) malloc((size_t) 20);
-
-    vm->stack = (Object **) malloc((size_t) 20);
-    vm->sp = 0;
 
     vm->ip = bytecode;
+    vm->_running = 1;
+
+    vm->data =     (char **)   malloc((size_t) 20);
+
+    vm->insc = 0;
+    vm->sp = 0;
+
+    vm->stack       = (Object **) malloc((size_t) 20);
     vm->varspace    = (Object **) malloc((size_t) 20);
 
     // Read size of constants pool.
@@ -128,10 +129,13 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     }
 
     p = NULL;
+
     // Then jump ahead of it.
     vm->ip += data_size;
 
     while (vm->_running) {
+        // printf("! %d\n", *vm->ip);
+
         switch (*vm->ip) {
             case _INS_RETURN: {
                 vm->_running = 0;
