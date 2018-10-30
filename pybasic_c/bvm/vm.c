@@ -146,6 +146,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             case _INS_STORE_NAME: {
                 Object *name = popstack(vm);
                 Object *value = popstack(vm);
+
+                vm->varspace[*((uint8_t *)name->ptr)] = value;
                 break;
             }
 
