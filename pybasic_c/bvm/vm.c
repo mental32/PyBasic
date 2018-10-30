@@ -150,27 +150,27 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_LOAD_NAME: {
-                vm->stack[vm->sp++] = NewObject(_obj_tp_byte, (uint8_t *) vm->ip);
-                vm->ip++;
+                pushstack(vm, NewObject(_obj_tp_generic_ref, (uint8_t *) (++vm->ip)));
                 break;
             }
 
             case _INS_LOAD_CONST: {
-                vm->ip++;
-                vm->stack[vm->sp++] = NewObject(_obj_tp_str, vm->data[*vm->ip]);
+                pushstack(vm, NewObject(_obj_tp_str, vm->data[*++vm->ip]));
                 break;
             }
 
             case _INS_LOAD_LONG: {
+                pushstack(vm, NewObject(LONG, ((long*) (++vm->ip))));
                 break;
             }
 
             case _INS_LOAD_SHORT: {
+                pushstack(vm, NewObject(SHORT, ((short*) (++vm->ip))));
                 break;
             }
 
             case _INS_LOAD_BYTE: {
-                vm->stack[vm->sp++] = NewObject(_obj_tp_byte, ((uint8_t*) (vm->ip++)));
+                pushstack(vm, NewObject(BYTE, ((uint8_t*) (++vm->ip))));
                 break;
             }
 
