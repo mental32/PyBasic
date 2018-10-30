@@ -90,6 +90,12 @@ static inline Object *NewObject(uint8_t tp, void *ptr) {
     return obj;
 }
 
+static inline Object *RebaseObject(Object *obj, uint8_t tp, void *ptr) {
+    obj->tp = tp;
+    obj->ptr = ptr;
+    return obj;
+}
+
 /*
 
 */
