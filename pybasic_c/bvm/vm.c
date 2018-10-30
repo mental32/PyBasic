@@ -197,12 +197,22 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 break;
             }
 
+            case _INS_PRINT: {
+                while (vm->sp-- != 0) {
+                    Object *item = resolve(vm, vm->stack[vm->sp]);
+                    vm->stack[vm->sp] = NULL;
+                    PrintObject(item);
+                }
+                printf("\n");
+                vm->sp = 0;
+                break;
+            }
+
             case _INS_GOTO: {
                 vm->ip += *((short*) (vm->ip + 1));
                 break;
             }
         }
-
         vm->ip++;
         vm->insc++;
     }
