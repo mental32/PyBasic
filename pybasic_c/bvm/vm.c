@@ -83,6 +83,14 @@ static inline Object *RebaseObject(Object *obj, uint8_t tp, void *ptr) {
     return obj;
 }
 
+static inline int GetIntValue(Object *obj) {
+    if (obj->tp == _BYTE) {
+        return (uint8_t)obj->ptr;
+    } else {
+        return *(uint8_t*)obj->ptr;
+    }
+}
+
 static inline int TypeCheckExact(Object *a, Object *b) {
     if (IS_STR(a) && IS_STR(b)) {
         return _obj_tp_generic_str;
