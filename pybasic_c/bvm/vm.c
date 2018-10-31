@@ -193,7 +193,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    RebaseObject(_ref_a, _BYTE, *((uint8_t*)a->ptr) + *((uint8_t*)b->ptr));
+                    RebaseObject(_ref_a, _BYTE, GetIntValue(a) + GetIntValue(b));
                     pushstack(vm, _ref_a);
                 }
 
@@ -207,7 +207,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    RebaseObject(_ref_a, _BYTE, *((uint8_t*)a->ptr) - *((uint8_t*)b->ptr));
+                    RebaseObject(_ref_a, _BYTE, GetIntValue(a) - GetIntValue(b));
                     pushstack(vm, _ref_a);
                 }
 
@@ -221,7 +221,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    RebaseObject(_ref_a, _BYTE, *((uint8_t*)a->ptr) * *((uint8_t*)b->ptr));
+                    RebaseObject(_ref_a, _BYTE, GetIntValue(a) * GetIntValue(b));
                     pushstack(vm, _ref_a);
                 }
 
@@ -235,7 +235,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    RebaseObject(_ref_a, _BYTE, *((uint8_t*)a->ptr) / *((uint8_t*)b->ptr));
+                    RebaseObject(_ref_a, _BYTE, GetIntValue(a) / GetIntValue(b));
                     pushstack(vm, _ref_a);
                 }
 
