@@ -273,13 +273,11 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_POP_JMP_TRUE: {
-                Object *left = popstack(vm);
-                Object *right = popstack(vm);
+                Object *obj = popstack(vm);
 
-                if (CompareObjects(left, right)) {
+                if (obj->tp == _BOOL && (uint8_t)obj->ptr) {
                     vm->ip += *((short*) (vm->ip + 1));
                 } else {
-                    printf("NO POP JMP\n");
                     vm->ip += sizeof(short);
                 }
 
