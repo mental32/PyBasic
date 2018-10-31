@@ -30,12 +30,14 @@ typedef struct {
 static void PrintObject(Object *obj) {
     uint8_t tp = obj->tp;
 
-    if (tp == _obj_tp_str) {
+    if (tp == _obj_tp_generic_str) {
         printf("%s", (char*)obj->ptr);
     } else if (tp == BYTE) {
         printf("%d", *((uint8_t*)obj->ptr));
-    } else if (tp == _BYTE) {
+    } else if (tp == _BYTE || tp == _BOOL) {
         printf("%d", ((uint8_t*)obj->ptr));
+    } else {
+        printf("\n(nil) : Attempted to display an unrecognised value (%d).\n", tp);
     }
 
     return;
