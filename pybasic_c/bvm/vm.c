@@ -237,14 +237,35 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_CMP: {
+                Object *left = popstack(vm);
+                Object *right = popstack(vm);
+
+                pushstack(vm, NewObject(_BOOL, CompareObjects(left, right)));
                 break;
             }
 
             case _INS_NOT: {
+                Object *_ref_obj = popstack(vm);
+                Object *obj = resolve(vm, _ref_obj);
+
+                if (obj->tp == _BOOL) {
+                    pushstack(vm, RebaseObject(_ref_obj, _BOOL, !(uint8_t)obj->ptr));
+                }
+
                 break;
             }
 
             case _INS_POP_JMP_TRUE: {
+                Object *left = popstack(vm);
+                Object *right = popstack(vm);
+
+                if (CompareObjects(left, right)) {
+                    vm->ip += *((short*) (vm->ip + 1));
+                } else {
+                    printf("NO POP JMP\n");
+                    vm->ip += sizeof(short);
+                }
+
                 break;
             }
 
