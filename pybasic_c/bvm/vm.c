@@ -116,13 +116,13 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     vm->ip = bytecode;
     vm->_running = 1;
 
-    vm->data =     (char **)   malloc((size_t) 20);
+    vm->data = (char **)malloc((size_t) 20);
 
     vm->insc = 0;
     vm->sp = 0;
 
-    vm->stack       = (Object **) malloc((size_t) 20);
-    vm->varspace    = (Object **) malloc((size_t) 20);
+    vm->stack = (Object **)malloc((size_t) 20);
+    vm->varspace = (Object **)malloc((size_t) 20);
 
     // Read size of constants pool.
     short dp = 0, data_size = *((short*) (vm->ip));
