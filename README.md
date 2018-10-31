@@ -2,6 +2,18 @@
 
 A (dartmouth) BASIC inspired interpreter written in C/Python.
 
+A list of current known issues:
+ - There is no REPL
+ - All integers are unsigned bytes
+ - But all jump addresses are shorts
+ - Division will probably not work
+ - Floats don't exist
+ - There is 0 Garbage collection (nothing gets free'd)
+ - If you get infinite loop, control-c will not work you will have to suspend and kill the process
+ - when you exit the python interpreter after you instantiate a pybasic one, due to a bug somewhere with the type refrencing python segfaults.
+
+Enjoy!
+
 ## Installing
 
 Compiling from source.
@@ -11,8 +23,6 @@ Compiling from source.
 
 Command line usage for pybasic is pretty much
  - `python -m pybasic [option] ... [file] [args] ...`
-
-It should be noted that running pybasic without a source file will place you into an interactive interpreter session.
 
 ## Progress
 
