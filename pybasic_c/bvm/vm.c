@@ -167,11 +167,13 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
 
             case _INS_LOAD_LONG: {
                 pushstack(vm, NewObject(LONG, ((long*) (++vm->ip))));
+                vm->ip += sizeof(long) - 1;
                 break;
             }
 
             case _INS_LOAD_SHORT: {
                 pushstack(vm, NewObject(SHORT, ((short*) (++vm->ip))));
+                vm->ip += sizeof(short) - 1;
                 break;
             }
 
