@@ -72,9 +72,36 @@ static inline Object *RebaseObject(Object *obj, uint8_t tp, void *ptr) {
     return obj;
 }
 
-/*
+static inline int TypeCheckExact(Object *a, Object *b) {
+    if (IS_STR(a) && IS_STR(b)) {
+        return _obj_tp_generic_str;
+    } else if (IS_INT(a) && IS_INT(b)) {
+        return _obj_tp_generic_int;
+    }
 
-*/
+    return 0;
+}
+
+static inline int CompareObjects(Object *a, Object *b) {
+    int tp = TypeCheckExact(a, b);
+
+    if (!tp) {
+        // TODO
+    }
+
+    else if (tp == _obj_tp_generic_int) {
+        if (a->tp == BYTE && b->tp == BYTE) {
+            return (*((uint8_t*)a) == *((uint8_t*)b));
+        }
+    }
+
+    else if (tp == _obj_tp_generic_str) {
+        return !strcmp(((char*)a), ((char*)b));
+    }
+
+    return 0;
+}
+
 int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     int _status = 0;
 
