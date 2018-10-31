@@ -11,6 +11,7 @@ typedef struct {
 } ByteCodeInterpreter;
 
 static PyObject *ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args);
+static PyObject *ByteCodeInterpreter_run_bytecode(ByteCodeInterpreter *self, PyObject *args);
 static PyObject *ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static void ByteCodeInterpreter_dealloc(ByteCodeInterpreter *self);
 
@@ -20,6 +21,7 @@ static PyMemberDef ByteCodeInterpreter_members[] = {
 
 static PyMethodDef ByteCodeInterpreter_methods[] = {
     {"run_source", (PyCFunction) ByteCodeInterpreter_run_source, METH_VARARGS, "Run the interpreter."},
+    {"run_bytecode", (PyCFunction) ByteCodeInterpreter_run_bytecode, METH_VARARGS, "Run raw bytecode."},
     {NULL}  /* Sentinel */
 };
 
@@ -70,6 +72,30 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
         PyErr_SetString(PyExc_RuntimeError, "BVM aborted execution.");
         return NULL;
     }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+ByteCodeInterpreter_run_bytecode(ByteCodeInterpreter *self, PyObject *args)
+{
+    PyObject *bytearray;
+
+    if (!PyArg_ParseTuple(args, "Y", &bytearray)) {
+        return NULL;
+    }
+
+    size_t size = PyByteArray_GET_SIZE(bytearray);
+    uint8_t *bytecode = (uint8_t *) PyByteArray_AS_STRING(bytearray);
+
+    Py_BEGIN_ALLOW_THREADS
+
+    if (BytecodeVirtualMachine_main(bytecode, size) != 0) {
+        PyErr_SetString(PyExc_RuntimeError, "BVM aborted execution.");
+        return NULL;
+    }
+
+    Py_END_ALLOW_THREADS
 
     Py_RETURN_NONE;
 }
