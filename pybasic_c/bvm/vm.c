@@ -16,7 +16,6 @@ typedef struct {
 typedef struct {
     uint8_t *ip;
     uint8_t _running;
-    uint8_t _cmp_reg;
 
     char **data;
 
