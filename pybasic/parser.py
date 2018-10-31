@@ -142,25 +142,21 @@ def tokenize(source):
     # Extract metadata and perform analysis
     # On the source.
     for line in source.strip().split('\n'):
-        rparity = 0
         row = []
-
-        if '!=' in line:
-            rparity |= 1
 
         it = iter(shlex.shlex(line.strip()).get_token, '')
         ln = int(next(it))
         lt = None
 
         for token in it:
-            if token not in _reserved:
+            if token not in _reserved and token not in '!=*/+-{}[]@':
                 if is_string(token) and token not in constants:
                     constants.append(token[1:-1])
 
                 elif token.isalpha() and token not in varnames:
                     varnames.append(token)
 
-            elif token == '=' and lt == '!' and rparity & 1:
+            elif token == '=' and lt == '!':
                 row.pop()
                 row.append('!=')
                 lt = token
@@ -172,6 +168,12 @@ def tokenize(source):
         parsed[ln] = row
 
     parsed = {k: parsed[k] for k in sorted(parsed)}
+
+    byte_consts = (bytes(c, encoding='utf8') + b'\x00' for c in constants)
+    for value in byte_consts:
+        _header += value
+
+    _header = (bytearray() + struct.pack('=H', len(_header) + 2)) + _header
 
     for ln, src in parsed.items():
         labels[ln] = [len(_bytecode)]
@@ -190,7 +192,7 @@ def tokenize(source):
             _bytecode.extend(evaluate((constants, varnames), e[:-1]))
 
             _bytecode.append(_bvm_ins['pop_jmp_true'])
-            _bytecode.extend(struct.pack('=h', labels[int(_g_ln)][0] - labels[ln][0]))
+            _bytecode.extend(struct.pack('=h', (labels[int(_g_ln)][0]) - len(_bytecode)))
 
         elif src[0] == 'END':
             _bytecode.append(_bvm_ins['return'])
@@ -212,13 +214,9 @@ def tokenize(source):
 
         labels[ln].append(len(_bytecode) - labels[ln][0])
 
+    # pprint.pprint(labels)
+
     # pprint.pprint((parsed, constants))
-
-    byte_consts = (bytes(c, encoding='utf8') + b'\x00' for c in constants)
-    for value in byte_consts:
-        _header += value
-
-    _header = (bytearray() + struct.pack('=H', len(_header) + 2)) + _header
 
     # litecode = list(_bytecode)
     # for ln, data in labels.items():
