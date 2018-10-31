@@ -139,10 +139,13 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     p = NULL;
 
     // Then jump ahead of it.
-    vm->ip += data_size;
+    vm->ip += data_size - 1;
 
     while (vm->_running) {
-        // printf("! %d\n", *vm->ip);
+        vm->ip++;
+        vm->insc++;
+
+        // printf("! %d\t:: %p\t:: %d\n", *vm->ip, vm->ip, vm->sp);
 
         switch (*vm->ip) {
             case _INS_RETURN: {
@@ -290,9 +293,12 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 vm->ip += *((short*) (vm->ip + 1));
                 break;
             }
+
+            default: {
+                _status = 1;
+                vm->_running = 0;
+            }
         }
-        vm->ip++;
-        vm->insc++;
     }
 
     return _status;
