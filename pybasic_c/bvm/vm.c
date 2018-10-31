@@ -96,17 +96,11 @@ static inline int TypeCheckExact(Object *a, Object *b) {
 static inline int CompareObjects(Object *a, Object *b) {
     int tp = TypeCheckExact(a, b);
 
-    if (!tp) {
-        // TODO
+    if (tp & _obj_tp_generic_int) {
+        return GetIntValue(a) == GetIntValue(b);
     }
 
-    else if (tp == _obj_tp_generic_int) {
-        if (a->tp == BYTE && b->tp == BYTE) {
-            return (*((uint8_t*)a) == *((uint8_t*)b));
-        }
-    }
-
-    else if (tp == _obj_tp_generic_str) {
+    else if (tp & _obj_tp_generic_str) {
         return !strcmp(((char*)a), ((char*)b));
     }
 
