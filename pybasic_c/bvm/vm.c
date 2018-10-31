@@ -6,41 +6,17 @@
 #include <string.h>
 
 #include "ins.h"
-
-enum ObjectType {
-    _obj_tp_str = 1,
-
-    _obj_tp_u8,
-    _obj_tp_u16,
-    _obj_tp_u32,
-
-    _obj_tp_generic_ref,
-    _obj_tp_generic_int,
-    _obj_tp_generic_str,
-    _obj_tp_generic_flt,
-
-    _obj_tp_literal = 128,
-};
-
-#define BYTE  (_obj_tp_u8  | _obj_tp_generic_int)
-#define SHORT (_obj_tp_u16 | _obj_tp_generic_int)
-#define LONG  (_obj_tp_u32 | _obj_tp_generic_int)
-
-#define _BYTE  (BYTE  | _obj_tp_literal)
-#define _SHORT (SHORT | _obj_tp_literal)
-#define _LONG  (LONG  | _obj_tp_literal)
+#include "types.h"
 
 typedef struct {
     uint8_t tp;
     void *ptr;
 } Object;
 
-/*
-
-*/
 typedef struct {
     uint8_t *ip;
     uint8_t _running;
+    uint8_t _cmp_reg;
 
     char **data;
 
