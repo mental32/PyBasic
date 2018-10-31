@@ -166,7 +166,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *name = popstack(vm);
                 Object *value = popstack(vm);
 
-                vm->varspace[*((uint8_t *)name->ptr)] = value;
+                vm->varspace[*((uint8_t *)name->ptr)] = resolve(vm, value);
                 break;
             }
 
@@ -254,8 +254,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_CMP: {
-                Object *left = popstack(vm);
-                Object *right = popstack(vm);
+                Object *left = resolve(vm, popstack(vm));
+                Object *right = resolve(vm, popstack(vm));
 
                 pushstack(vm, NewObject(_BOOL, CompareObjects(left, right)));
                 break;
