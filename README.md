@@ -10,7 +10,7 @@ A list of current known issues:
  - Floats don't exist
  - There is 0 Garbage collection (nothing gets free'd)
  - If you get infinite loop, control-c will not work you will have to suspend and kill the process
- - when you exit the python interpreter after you instantiate a pybasic one, due to a bug somewhere with the type refrencing python segfaults.
+ - when you exit the python interpreter after you instantiate a pybasic one, due to a bug somewhere. Python segfaults.
 
 Enjoy!
 
