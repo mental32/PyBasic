@@ -23,6 +23,10 @@ typedef struct {
 } VMState;
 
 static void PrintObject(Object *obj) {
+    if (!obj) {
+        return;
+    }
+
     uint8_t tp = obj->tp;
 
     if (tp == _obj_tp_generic_str) {
@@ -35,10 +39,11 @@ static void PrintObject(Object *obj) {
         printf("\n(nil) : Attempted to display an unrecognised value (%d).\n", tp);
     }
 
-    return;
-}
-
 static inline void pushstack(VMState *vm, Object *item) {
+    if (!item || !vm) {
+        return;
+    }
+
     vm->stack[vm->sp++] = item;
 }
 
