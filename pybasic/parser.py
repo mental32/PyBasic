@@ -36,6 +36,10 @@ class Logic(Operator):
     pass
 
 
+def create_header(data):
+    return bytearray() + (struct.pack('=H', len(data) + 2) + data)
+
+
 def _get_concrete(token):
     ttype = _pybasic.type(token)
 
@@ -131,7 +135,6 @@ def evaluate(data, tokens):
     return expr
 
 def tokenize(source):
-    _header = bytearray()
     _bytecode = bytearray()
     parsed = {}
     labels = {}
@@ -169,11 +172,7 @@ def tokenize(source):
 
     parsed = {k: parsed[k] for k in sorted(parsed)}
 
-    byte_consts = (bytes(c, encoding='utf8') + b'\x00' for c in constants)
-    for value in byte_consts:
-        _header += value
-
-    _header = (bytearray() + struct.pack('=H', len(_header) + 2)) + _header
+    _header = create_header(b''.join(bytes(c, encoding='utf8') + b'\x00' for c in constants))
 
     for ln, src in parsed.items():
         labels[ln] = [len(_bytecode)]
