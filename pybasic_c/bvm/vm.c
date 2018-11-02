@@ -6,12 +6,8 @@
 #include <string.h>
 
 #include "ins.h"
+#include "obj.h"
 #include "types.h"
-
-typedef struct {
-    uint8_t tp;
-    void *ptr;
-} Object;
 
 typedef struct {
     uint8_t *ip;
@@ -67,19 +63,6 @@ static inline Object *resolve(VMState *vm, Object *ref) {
         obj = resolve_once(vm, obj);
     }
 
-    return obj;
-}
-
-static inline Object *NewObject(uint8_t tp, void *ptr) {
-    Object *obj = malloc(sizeof(Object));
-    obj->tp = tp;
-    obj->ptr = ptr;
-    return obj;
-}
-
-static inline Object *RebaseObject(Object *obj, uint8_t tp, void *ptr) {
-    obj->tp = tp;
-    obj->ptr = ptr;
     return obj;
 }
 
