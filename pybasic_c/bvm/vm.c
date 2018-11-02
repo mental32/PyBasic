@@ -34,7 +34,7 @@ static void PrintObject(Object *obj) {
         }
 
         case BYTE: {
-            printf("%d", *((uint8_t*)obj->ptr));
+            printf("%hhd", *((uint8_t*)obj->ptr));
             break;
         }
 
@@ -44,12 +44,12 @@ static void PrintObject(Object *obj) {
         }
 
         case _BYTE :{
-            printf("%d", ((uint8_t*)obj->ptr));
+            printf("%d", ((uint8_t)obj->ptr));
             break;
         }
 
         case _LONG: {
-            printf("%ld", (long*)obj->ptr);
+            printf("%ld", (long)obj->ptr);
             break;
         }
 
@@ -68,6 +68,10 @@ static inline void pushstack(VMState *vm, Object *item) {
 }
 
 static inline Object *popstack(VMState *vm) {
+    if (!vm) {
+        return NULL;
+    }
+
     Object *item = vm->stack[--vm->sp];
     vm->stack[vm->sp] = NULL;
     return item;
@@ -294,6 +298,13 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
 
                 if (obj->tp == _BOOL) {
                     pushstack(vm, RebaseObject(_ref_obj, _BOOL, !(uint8_t)obj->ptr));
+                }
+
+                else if (IS_INT(obj)) {
+                    pushstack(vm, RebaseObject(_ref_obj, _BOOL, !GetIntValue(obj)));
+                }
+
+                else if (IS_STR(obj)) {
                 }
 
                 break;
