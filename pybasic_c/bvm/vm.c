@@ -161,6 +161,15 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     vm->ip += data_size - 1;
 
     while (vm->_running) {
+
+        if ((size_t)(vm->ip - bytecode) >= bytecode_size) {
+            // Check that we are not reading into anything else
+            // apart from our bytecode.
+            vm->_running = 0;
+            _status = 0;
+            break;
+        }
+
         vm->ip++;
         vm->insc++;
 
