@@ -97,6 +97,8 @@ static inline Object *resolve(VMState *vm, Object *ref) {
 static inline int GetIntValue(Object *obj) {
     if (obj->tp == _BYTE) {
         return (uint8_t)obj->ptr;
+    } else if (obj->tp == _LONG) {
+        return (long)obj->ptr;
     } else {
         return *(uint8_t*)obj->ptr;
     }
@@ -202,13 +204,13 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
 
             case _INS_LOAD_LONG: {
                 pushstack(vm, NewObject(LONG, ((long*) (++vm->ip))));
-                vm->ip += sizeof(long) - 1;
+                vm->ip += 3;
                 break;
             }
 
             case _INS_LOAD_SHORT: {
                 pushstack(vm, NewObject(SHORT, ((short*) (++vm->ip))));
-                vm->ip += sizeof(short) - 1;
+                vm->ip += 1;
                 break;
             }
 
@@ -224,7 +226,14 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    RebaseObject(_ref_a, _BYTE, GetIntValue(a) + GetIntValue(b));
+                    long result = GetIntValue(a) + GetIntValue(b);
+
+                    if (result > 0 && result < 255) {
+                        RebaseObject(_ref_a, _BYTE, result);
+                    } else {
+                        RebaseObject(_ref_a, _LONG, result);
+                    }
+
                     pushstack(vm, _ref_a);
                 }
 
