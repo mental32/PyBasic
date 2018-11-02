@@ -1,20 +1,22 @@
+import sys
 import shlex
 import struct
-import pprint
 
 import _pybasic
 
 from pybasic import _bvm_ins
 
 is_string = lambda token: (len(token) > 2 and (token[0], token[-1]) == ('"', '"'))
+flatten = lambda stream: list(p[0] for p in stream)
 
-_reserved = [
-    'PRINT',
-    'LET',
-    'GOTO',
-    'END',
-    'IF'
+reserved_words = [
+    'print',
+    'goto',
+    'end',
+    'let',
+    'if'
 ]
+
 
 class Operator:
     __bvm_ops = {
@@ -36,11 +38,13 @@ class Logic(Operator):
     pass
 
 
+def encode_const(word):
+    return bytes(word, encoding='utf8') + b'\x00'
+
 def create_header(data):
     return bytearray() + (struct.pack('=H', len(data) + 2) + data)
 
-
-def _get_concrete(token):
+def resolve(token):
     ttype = _pybasic.type(token)
 
     if ttype == 'I':
@@ -52,178 +56,148 @@ def _get_concrete(token):
     elif token in '+-*/':
         return Operator(token)
 
-    elif token in ('!', '=', 'GOTO'):
+    elif token in reserved_words:
         return None
 
     return token
 
-def evaluate(data, tokens):
-    flatten = lambda stream: list(p[0] for p in stream)
-
-    expr = bytearray()
-    constants, varnames = data
+def evaluate(metadata, tokens):
+    expression = bytearray()
+    constants, varnames = metadata
 
     if not tokens:
-        return expr
+        return expression
 
     types = {_pybasic.type(t) for t in tokens}
-    typed_tokens = tuple((t, _pybasic.type(t)) for t in tokens)
+    ttypes = tuple((t, _pybasic.type(t)) for t in tokens)
 
     if 'S' not in types and 'V' not in types:
-        # Expression appears to be static (containing no refrences)
-
-        # "Using eval is cheating!" 
-        # I'm using eval because I can and I know it's absolutely safe!
-        # Ergo to not use eval would be the silly answer
-        rv = eval(''.join(tokens))
+        real = eval(''.join(tokens))
     else:
-        stream = iter(reversed(typed_tokens))
-
-        value, ttype = next(stream)
-        rv = _get_concrete(value)
+        stream = iter(reversed(ttypes))
+        value, value_type = next(stream)
+        real = resolve(value)
 
     while True:
-        if isinstance(rv, int):
-            if 255 > rv >= 0:
-                expr.append(_bvm_ins['load_byte'])
-                expr.extend(struct.pack('=B', rv))
+        if isinstance(real, int):
+            if 254 >= real >= 0:
+                expression += _bvm_ins['load_byte'].to_bytes(1, sys.byteorder)
+                expression += struct.pack('=B', real)
             else:
-                expr.append(_bvm_ins['load_long'])
-                expr.extend(struct.pack('=l', rv))
+                expression += _bvm_ins['load_long'].to_bytes(1, sys.byteorder)
+                expression += struct.pack('=l', real)
 
-        elif isinstance(rv, bool):
-            expr.append(_bvm_ins['load_byte'])
-            expr.extend(struct.pack('=?', rv))
+        elif isinstance(real, bool):
+            expression += _bvm_ins['load_byte'].to_bytes(1, sys.byteorder)
+            expression += struct.pack('=?', real)
 
-        elif isinstance(rv, Logic):
-            expr.extend(evaluate(data, flatten(stream)))
+        elif isinstance(real, Logic):
+            expression += evaluate(metadata, flatten(stream))
+            expression += _bvm_ins['cmp'].to_bytes(1, sys.byteorder)
 
-            if rv.data[0] == '!':
-                expr.append(_bvm_ins['cmp'])
-                expr.append(_bvm_ins['not'])
+            if real.data[0] == '!':
+                expression += _bvm_ins['not'].to_bytes(1, sys.byteorder)
+
+        elif isinstance(real, Operator):
+            expression += evaluate(metadata, flatten(stream))
+            expression += real.ins.to_bytes(1, sys.byteorder)
+
+        elif isinstance(real, str):
+            if value_type == 'S':
+                expression += bytes(_bvm_ins['load_const'])
+                real = real[1:-1]
+
+                if real not in constants:
+                    constants.append(real)
+
+                expression += constants.index(real).to_bytes(1, sys.byteorder)
             else:
-                expr.append(_bvm_ins['cmp'])
-
-        elif isinstance(rv, Operator):
-            expr.extend(evaluate(data, flatten(stream)))
-            expr.append(rv.ins)
-
-        elif isinstance(rv, str):
-
-            if ttype == 'S':
-                expr.append(_bvm_ins['load_const'])
-
-                rv = rv[1:-1]
-
-                if rv not in constants:
-                    constants.append(rv)
-
-                expr.append(constants.index(rv))
-            else:
-                expr.append(_bvm_ins['load_name'])
-                expr.append(varnames.index(rv))
+                expression += _bvm_ins['load_name'].to_bytes(1, sys.byteorder)
+                expression += varnames.index(real).to_bytes(1, sys.byteorder)
 
         if 'V' not in types:
             break
 
         try:
-            value, ttype = next(stream)
-            rv = _get_concrete(value)
+            value, value_type = next(stream)
+            real = resolve(value)
         except StopIteration:
             break
 
-    return expr
+    return expression
 
-def tokenize(source):
-    _bytecode = bytearray()
+def extract(source):
+    constants, varnames = [], []
     parsed = {}
-    labels = {}
-    constants = []
-    varnames = []
 
-    # While creating the parsed tokens
-    # Extract metadata and perform analysis
-    # On the source.
     for line in source.strip().split('\n'):
         row = []
 
-        it = iter(shlex.shlex(line.strip()).get_token, '')
-        ln = int(next(it))
+        stream = iter(shlex.shlex(line.strip()).get_token, '')
+        ln = next(stream)
+
+        if not ln.isdigit():
+            SyntaxError(line)
+
         lt = None
 
-        for token in it:
-            if token not in _reserved and token not in '!=*/+-{}[]@':
+        for token in stream:
+            if token not in reserved_words and token not in '!=*/+-{}[]@:;#~?.><,\\|\"\'£$%^&*()_`¬':
                 if is_string(token) and token not in constants:
                     constants.append(token[1:-1])
 
                 elif token.isalpha() and token not in varnames:
                     varnames.append(token)
 
-            elif token == '=' and lt == '!':
+            elif (lt, token) == ('!', '='):
                 row.pop()
                 row.append('!=')
                 lt = token
                 continue
 
-            row.append(token)
             lt = token
+            row.append(token)
 
         parsed[ln] = row
 
     parsed = {k: parsed[k] for k in sorted(parsed)}
+    return (constants, varnames), parsed
 
-    _header = create_header(b''.join(bytes(c, encoding='utf8') + b'\x00' for c in constants))
+def tokenize(source):
+    bytecode = bytearray()
+    metadata, parsed = extract(source)
+
+    header = create_header(b''.join(encode_const(word) for word in metadata[0]))
 
     for ln, src in parsed.items():
-        labels[ln] = [len(_bytecode)]
+        start = len(bytecode)
 
-        if src[0] == 'LET':
-            _bytecode.extend(evaluate((constants, varnames), src[3:]))
+        if src[0] == 'let':
+            bytecode += evaluate(metadata, src[3:])
+            bytecode += _bvm_ins['load_name'].to_bytes(1, sys.byteorder)
+            bytecode += metadata[1].index(src[1]).to_bytes(1, sys.byteorder)
+            bytecode += _bvm_ins['store'].to_bytes(1, sys.byteorder)
 
-            _bytecode.append(_bvm_ins['load_name'])
-            _bytecode.append(varnames.index(src[1]))
-
-            _bytecode.append(_bvm_ins['store'])
-
-        elif src[0] == 'IF':
+        elif src[0] == 'if':
             *e, _g_ln = src[1:]
 
-            _bytecode.extend(evaluate((constants, varnames), e[:-1]))
+            bytecode += evaluate(metadata, e[:-1])
+            bytecode += _bvm_ins['pop_jmp_true'].to_bytes(1, sys.byteorder)
+            bytecode += struct.pack('=h', )
 
-            _bytecode.append(_bvm_ins['pop_jmp_true'])
-            _bytecode.extend(struct.pack('=h', (labels[int(_g_ln)][0]) - len(_bytecode)))
+        elif src[0] == 'end':
+            bytecode += _bvm_ins['return'].to_bytes(1, sys.byteorder)
 
-        elif src[0] == 'END':
-            _bytecode.append(_bvm_ins['return'])
-
-        elif src[0] == 'PRINT':
-            _bytecode.extend(evaluate((constants, varnames), src[1:]))
-            _bytecode.append(_bvm_ins['print'])
+        elif src[0] == 'print':
+            bytecode += evaluate(metadata, src[1:])
+            bytecode += _bvm_ins['print'].to_bytes(1, sys.byteorder)
 
         elif len(src) >= 3 and src[1] == '=' and src[2] != '=':
-            # re assignment
-            _bytecode.extend(evaluate((constants, varnames), src[2:]))
+            bytecode += evaluate(metadata, srd[2:])
+            bytecode += _bvm_ins['load_name'].to_bytes(1, sys.byteorder)
+            bytecode += metadata[1].index(src[0]).to_bytes(1, sys.byteorder)
+            bytecode += _bvm_ins['store'].to_bytes(1, sys.byteorder)
 
-            _bytecode.append(_bvm_ins['load_name'])
-            _bytecode.append(varnames.index(src[0]))
-
-            _bytecode.append(_bvm_ins['store'])
         else:
-            _bytecode.extend(evaluate((constants, varnames), src))
-
-        labels[ln].append(len(_bytecode) - labels[ln][0])
-
-    # pprint.pprint(labels)
-
-    # pprint.pprint((parsed, constants))
-
-    # litecode = list(_bytecode)
-    # for ln, data in labels.items():
-    #     start, size = data
-    #     print(ln, litecode[start:start + size])
-
-    _bytecode = _header + _bytecode
-
-    # pprint.pprint(_bytecode)
-
-    return _bytecode
+            bytecode += evaluate(metadata, src)
+    return header + bytecode
