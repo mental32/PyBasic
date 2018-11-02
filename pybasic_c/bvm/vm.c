@@ -29,15 +29,38 @@ static void PrintObject(Object *obj) {
 
     uint8_t tp = obj->tp;
 
-    if (tp == _obj_tp_generic_str) {
-        printf("%s", (char*)obj->ptr);
-    } else if (tp == BYTE) {
-        printf("%d", *((uint8_t*)obj->ptr));
-    } else if (tp == _BYTE || tp == _BOOL) {
-        printf("%d", ((uint8_t*)obj->ptr));
-    } else {
-        printf("\n(nil) : Attempted to display an unrecognised value (%d).\n", tp);
+    switch(tp) {
+        case _obj_tp_generic_str: {
+            printf("%s", (char*)obj->ptr);
+            break;
+        }
+
+        case BYTE: {
+            printf("%d", *((uint8_t*)obj->ptr));
+            break;
+        }
+
+        case _BOOL: {
+            printf("%d", ((uint8_t*)obj->ptr));
+            break;
+        }
+
+        case _BYTE :{
+            printf("%d", ((uint8_t*)obj->ptr));
+            break;
+        }
+
+        case _LONG: {
+            printf("%ld", (long*)obj->ptr);
+            break;
+        }
+
+        default: {
+            printf("\n(nil)?(%d).\n", tp);
+        }
+
     }
+}
 
 static inline void pushstack(VMState *vm, Object *item) {
     if (!item || !vm) {
