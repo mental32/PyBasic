@@ -27,9 +27,7 @@ static void PrintObject(Object *obj) {
         return;
     }
 
-    uint8_t tp = obj->tp;
-
-    switch(tp) {
+    switch(obj->tp) {
         case _obj_tp_generic_str: {
             printf("%s", (char*)obj->ptr);
             break;
@@ -56,9 +54,8 @@ static void PrintObject(Object *obj) {
         }
 
         default: {
-            printf("\n(nil)?(%d).\n", tp);
+            printf("{(nil)?(%d)}\n", obj->tp);
         }
-
     }
 }
 
