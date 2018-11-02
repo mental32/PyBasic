@@ -16,11 +16,11 @@ enum ObjectType {
 };
 
 #define STRING (_obj_tp_generic_str)
+#define BOOL   (_obj_tp_generic_bool)
 
 #define BYTE  (_obj_tp_u8  | _obj_tp_generic_int)
 #define SHORT (_obj_tp_u16 | _obj_tp_generic_int)
 #define LONG  (_obj_tp_u32 | _obj_tp_generic_int)
-#define BOOL  (_obj_tp_generic_bool)
 
 #define _BYTE  (BYTE  | _obj_tp_literal)
 #define _SHORT (SHORT | _obj_tp_literal)

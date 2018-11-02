@@ -1,6 +1,8 @@
 #ifndef _BASIC_OBJECT_H
 #define _BASIC_OBJECT_H
 
+#include <stdint.h>
+
 typedef struct {
     uint8_t tp;
     void *ptr;
