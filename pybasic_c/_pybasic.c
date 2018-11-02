@@ -4,8 +4,6 @@
 #include "_pybasic.h"
 #include "bvm/ins.h"
 
-static PyObject *_ins_dict;
-
 static void populate_ins_dict(PyObject *dict) {
     PyDict_SetItem(dict, PyUnicode_FromString("nop"),        PyLong_FromLong(_INS_NOP));
     PyDict_SetItem(dict, PyUnicode_FromString("return"),     PyLong_FromLong(_INS_RETURN));
@@ -87,26 +85,6 @@ set_tokenizer(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-get_bytecode_instruction(PyObject *self, PyObject *args)
-{
-    PyObject *key, *item;
-
-    if (!PyArg_ParseTuple(args, "O", &key)) {
-        return NULL;
-    }
-
-    item = PyDict_GetItem(_ins_dict, key);
-
-    if (!item) {
-        PyErr_SetString(PyExc_KeyError, "instruction not found.");
-        return NULL;
-    }
-    
-    Py_INCREF(item);
-    return item;
-}
-
-static PyObject *
 get_all_bytecode_instructions(PyObject *self, PyObject *args)
 {
     PyObject *dict = PyDict_New();
@@ -119,8 +97,7 @@ get_all_bytecode_instructions(PyObject *self, PyObject *args)
 static PyMethodDef BPyBasicMethods[] = {
     {"type", token_type, METH_VARARGS, "Get the type of a token."},
     {"set_tokenizer", set_tokenizer, METH_VARARGS, "Set the default tokenizer used."},
-    {"get_bytecode", get_bytecode_instruction, METH_VARARGS, "Get the bytecode for an instruction name."},
-    {"get_all_bytecodes", get_all_bytecode_instructions, METH_VARARGS, "Get all bytecode instructions as a dict (name => bytecode)."},
+    {"get_bytecodes", get_all_bytecode_instructions, METH_VARARGS, "Get all bytecode instructions as a dict (name -> bytecode)."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -144,17 +121,6 @@ PyInit__pybasic(void)
     if (module == NULL) {
         return NULL;
     }
-
-    _ins_dict = PyDict_New();
-    if (!_ins_dict) {
-        Py_XDECREF(_ins_dict);
-        return NULL;
-    } else {
-        Py_INCREF(_ins_dict);
-    }
-
-    populate_ins_dict(_ins_dict);
-
 
     Py_INCREF(&ByteCodeInterpreterType);
     PyModule_AddObject(module, "ByteCodeInterpreter", (PyObject *) &ByteCodeInterpreterType);

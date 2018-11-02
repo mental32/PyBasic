@@ -2,7 +2,7 @@ import shlex
 
 import _pybasic
 
-_bvm_ins = _pybasic.get_all_bytecodes()
+_bvm_ins = _pybasic.get_bytecodes()
 
 from . import parser
 from .core import Interpreter
