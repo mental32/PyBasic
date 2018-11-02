@@ -88,14 +88,10 @@ ByteCodeInterpreter_run_bytecode(ByteCodeInterpreter *self, PyObject *args)
     size_t size = PyByteArray_GET_SIZE(bytearray);
     uint8_t *bytecode = (uint8_t *) PyByteArray_AS_STRING(bytearray);
 
-    Py_BEGIN_ALLOW_THREADS
-
     if (BytecodeVirtualMachine_main(bytecode, size) != 0) {
         PyErr_SetString(PyExc_RuntimeError, "BVM aborted execution.");
         return NULL;
     }
-
-    Py_END_ALLOW_THREADS
 
     Py_RETURN_NONE;
 }
