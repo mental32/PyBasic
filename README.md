@@ -4,13 +4,12 @@ A (dartmouth) BASIC inspired interpreter written in C/Python.
 
 A list of current known issues:
  - There is no REPL
- - All integers are unsigned bytes
- - But all jump addresses are shorts
- - Division will probably not work
- - Floats don't exist
- - There is 0 Garbage collection (nothing gets free'd)
+ - All integers are either unsigned bytes or unsigned longs
+ - Division will probably not work (currently behaves as floor division due to no floats)
+ - Floats don't exist (yet)
  - If you get infinite loop, control-c will not work you will have to suspend and kill the process
- - when you exit the python interpreter after you instantiate a pybasic one, due to a bug somewhere. Python segfaults.
+ - There is 0 Garbage collection (nothing gets free'd)
+ - After doing a lot of arithmetic ops due to a bug somewhere. Python randomly segfaults (possibly due with the lack of a GC).
 
 Enjoy!
 
