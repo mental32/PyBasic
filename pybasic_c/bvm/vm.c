@@ -104,6 +104,14 @@ static inline int GetIntValue(Object *obj) {
     }
 }
 
+static inline void TailorInteger(Object *o, long value) {
+    if (value > 0 && value < 255) {
+        RebaseObject(o, _BYTE, value);
+    } else {
+        RebaseObject(o, _LONG, value);
+    }
+}
+
 static inline int TypeCheckExact(Object *a, Object *b) {
     if (IS_STR(a) && IS_STR(b)) {
         return _obj_tp_generic_str;
@@ -226,14 +234,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    long result = GetIntValue(a) + GetIntValue(b);
-
-                    if (result > 0 && result < 255) {
-                        RebaseObject(_ref_a, _BYTE, result);
-                    } else {
-                        RebaseObject(_ref_a, _LONG, result);
-                    }
-
+                    TailorInteger(_ref_a, (long)(GetIntValue(a) + GetIntValue(b)));
                     pushstack(vm, _ref_a);
                 }
 
@@ -247,7 +248,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    RebaseObject(_ref_a, _BYTE, GetIntValue(a) - GetIntValue(b));
+                    TailorInteger(_ref_a, (long)(GetIntValue(a) - GetIntValue(b)));
                     pushstack(vm, _ref_a);
                 }
 
@@ -261,7 +262,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    RebaseObject(_ref_a, _BYTE, GetIntValue(a) * GetIntValue(b));
+                    TailorInteger(_ref_a, (long)(GetIntValue(a) * GetIntValue(b)));
                     pushstack(vm, _ref_a);
                 }
 
@@ -275,7 +276,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *b = resolve(vm, popstack(vm));
 
                 if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
-                    RebaseObject(_ref_a, _BYTE, GetIntValue(a) / GetIntValue(b));
+                    TailorInteger(_ref_a, (long)(GetIntValue(a) / GetIntValue(b)));
                     pushstack(vm, _ref_a);
                 }
 
