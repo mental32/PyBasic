@@ -37,6 +37,7 @@ static void populate_ins_dict(PyObject *dict) {
 static PyObject *
 token_type(PyObject *self, PyObject *args)
 {
+    PyObject *tp;
     const char *token;
     char *end;
 
@@ -48,26 +49,31 @@ token_type(PyObject *self, PyObject *args)
 
     if (length == 1) {
         if (((int) *token) >= 48 && ((int) *token) <= 57) {
-            return PyUnicode_FromString("I");
+            tp = PyUnicode_FromString("I");
         } else {
-            return PyUnicode_FromString("V");
+            tp = PyUnicode_FromString("V");
         }
     }
 
-    if (token[0] == '"') {
+    else if (token[0] == '"') {
         if (token[length - 1] == '"') {
-            return PyUnicode_FromString("S");
+            tp = PyUnicode_FromString("S");
         } else {
             PyErr_SetString(PyExc_ValueError, "Invalid token.");
             return NULL;
         }
     }
 
-    if (strtol(token, &end, 10)) {
-        return PyUnicode_FromString("I");
+    else if (strtol(token, &end, 10)) {
+        tp = PyUnicode_FromString("I");
     }
 
-    return PyUnicode_FromString("V");
+    else {
+        tp = PyUnicode_FromString("U");
+    }
+
+    Py_INCREF(tp);
+    return tp;
 }
 
 static PyObject *
