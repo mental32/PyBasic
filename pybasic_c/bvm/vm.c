@@ -268,7 +268,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_PRINT: {
-                while (vm->sp-- != 0) {
+                while (vm->sp--) {
                     Object *item = resolve(vm, vm->stack[vm->sp]);
                     vm->stack[vm->sp] = NULL;
                     PrintObject(item);
