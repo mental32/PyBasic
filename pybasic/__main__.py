@@ -1,4 +1,5 @@
 import sys
+import time
 import argparse
 
 if '.' not in sys.path:
@@ -14,9 +15,19 @@ def main(args):
 
 	with open(args.file) as inf:
 		source = inf.read().strip()
-	_pybvm.run_source(source)
+
+	t1 = time.time()
+
+	try:
+		_pybvm.run_source(source)
+	except RuntimeError as err:
+		print(err)
+
+	if args.time:
+		print(time.time() - t1)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
+	parser.add_argument('-t', dest='time', action='store_true', help='Output the execution time in seconds')
 	parser.add_argument('file', nargs='?', help='read and run program from file.')
 	main(parser.parse_args())
