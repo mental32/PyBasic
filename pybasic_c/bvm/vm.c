@@ -325,5 +325,9 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
         }
     }
 
+    if (vm->_running) {
+        _status = 2;
+    }
+
     return _status;
 }
