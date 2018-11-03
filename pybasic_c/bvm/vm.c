@@ -79,19 +79,11 @@ static inline Object *popstack(VMState *vm) {
     return item;
 }
 
-static inline Object *resolve_once(VMState *vm, Object *ref) {
-    if (ref->tp == _obj_tp_generic_ref) {
-        return vm->varspace[*((uint8_t *)ref->ptr)];
-    } else {
-        return ref;
-    }
-}
-
 static inline Object *resolve(VMState *vm, Object *ref) {
     Object *obj = ref;
 
-    while (obj->tp == _obj_tp_generic_ref) {
-        obj = resolve_once(vm, obj);
+    while (obj->tp == generic_ref) {
+        obj = vm->varspace[*((uint8_t*)obj->ptr)];
     }
 
     return obj;
