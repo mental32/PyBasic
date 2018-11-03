@@ -173,20 +173,11 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
     // Then jump ahead of it.
     vm->ip += data_size - 1;
 
-    while (vm->_running) {
-
-        if ((size_t)(vm->ip - bytecode) >= bytecode_size) {
-            // Check that we are not reading into anything else
-            // apart from our bytecode.
-            vm->_running = 0;
-            _status = 0;
-            break;
-        }
-
+    while (vm->_running && !((size_t)(vm->ip - bytecode) >= bytecode_size)) {
         vm->ip++;
         vm->insc++;
 
-        // printf("! %d\t:: %p\t:: %d\n", *vm->ip, vm->ip, vm->sp);
+        // printf("! %d\t:: %p\t:: %ld\n", *vm->ip, vm->ip, vm->sp);
 
         switch (*vm->ip) {
             case _INS_RETURN: {
