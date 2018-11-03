@@ -104,7 +104,7 @@ def evaluate(metadata, tokens):
 
         elif isinstance(real, str):
             if value_type == 'S':
-                expression += bytes(_bvm_ins['load_const'])
+                expression += _bvm_ins['load_const'].to_bytes(1, sys.byteorder)
                 real = real[1:-1]
 
                 if real not in constants:
