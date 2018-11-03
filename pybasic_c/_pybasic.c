@@ -26,7 +26,7 @@ static void populate_ins_dict(PyObject *dict) {
     PyDict_SetItem(dict, PyUnicode_FromString("cmp"),        PyLong_FromLong(_INS_CMP));
     PyDict_SetItem(dict, PyUnicode_FromString("not"),        PyLong_FromLong(_INS_NOT));
 
-    PyDict_SetItem(dict, PyUnicode_FromString("pop_jmp_true"), PyLong_FromLong(_INS_POP_JMP_TRUE));
+    PyDict_SetItem(dict, PyUnicode_FromString("jmp_true"), PyLong_FromLong(_INS_JMP_TRUE));
 
     PyDict_SetItem(dict, PyUnicode_FromString("goto"),       PyLong_FromLong(_INS_GOTO));
     PyDict_SetItem(dict, PyUnicode_FromString("print"),      PyLong_FromLong(_INS_PRINT));

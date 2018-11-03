@@ -22,7 +22,7 @@ enum BYTECODE {
     _INS_CMP,
     _INS_NOT,
 
-    _INS_POP_JMP_TRUE,
+    _INS_JMP_TRUE,
 
     _INS_GOTO,
     _INS_PRINT,
