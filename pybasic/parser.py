@@ -130,14 +130,14 @@ def extract(source):
     constants, varnames = [], []
     parsed = {}
 
-    for line in source.strip().split('\n'):
+    for line_index, line in enumerate(source.strip().split('\n')):
         row = []
 
         stream = iter(shlex.shlex(line.strip()).get_token, '')
         ln = next(stream)
 
         if not ln.isdigit():
-            SyntaxError(line)
+            raise SyntaxError('\nln:{0:02}| {src}\n{ptr}^'.format(line_index, src=line, ptr=(len(ln) + 4) * '-'))
 
         lt = None
 
