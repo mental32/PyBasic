@@ -59,12 +59,14 @@ static void PrintObject(Object *obj) {
     }
 }
 
-static inline void pushstack(VMState *vm, Object *item) {
+static inline int pushstack(VMState *vm, Object *item) {
     if (!item || !vm) {
-        return;
+        return 0;
+    } else {
+        vm->stack[vm->sp++] = item;
     }
 
-    vm->stack[vm->sp++] = item;
+    return 1;
 }
 
 static inline Object *popstack(VMState *vm) {
