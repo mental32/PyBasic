@@ -155,6 +155,12 @@ def extract(source):
                 lt = token
                 continue
 
+            elif (lt, token) == ('=', '='):
+                row.pop()
+                row.append('==')
+                lt = token
+                continue
+
             lt = token
             row.append(token)
 
