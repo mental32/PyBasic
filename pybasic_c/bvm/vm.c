@@ -88,6 +88,14 @@ static inline int GetIntValue(Object *obj) {
     }
 }
 
+static inline uint8_t ObjectIsTrue(Object *obj) {
+    if (IS_INT(obj)) {
+        return (uint8_t)(GetIntValue(obj) != 0);
+    } else if (IS_STR(obj)) {
+        return (uint8_t)(strlen((char*)obj->ptr) != 0);
+    }
+}
+
 static inline void TailorInteger(Object *o, long value) {
     if (value > 0 && value < 255) {
         RebaseObject(o, _BYTE, (void*)value);
