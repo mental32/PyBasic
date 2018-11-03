@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
 
 #include "ins.h"
@@ -28,7 +27,7 @@ static void PrintObject(Object *obj) {
     }
 
     switch(obj->tp) {
-        case _obj_tp_generic_str: {
+        case generic_str: {
             printf("%s", (char*)obj->ptr);
             break;
         }
@@ -38,18 +37,8 @@ static void PrintObject(Object *obj) {
             break;
         }
 
-        case _BOOL: {
-            printf("%d", ((uint8_t*)obj->ptr));
-            break;
-        }
-
-        case _BYTE :{
+        case _BYTE: {
             printf("%d", ((uint8_t)obj->ptr));
-            break;
-        }
-
-        case _LONG: {
-            printf("%ld", (long)obj->ptr);
             break;
         }
 
@@ -109,9 +98,9 @@ static inline void TailorInteger(Object *o, long value) {
 
 static inline int TypeCheckExact(Object *a, Object *b) {
     if (IS_STR(a) && IS_STR(b)) {
-        return _obj_tp_generic_str;
+        return generic_str;
     } else if (IS_INT(a) && IS_INT(b)) {
-        return _obj_tp_generic_int;
+        return generic_int;
     }
 
     return 0;
@@ -120,11 +109,11 @@ static inline int TypeCheckExact(Object *a, Object *b) {
 static inline int CompareObjects(Object *a, Object *b) {
     int tp = TypeCheckExact(a, b);
 
-    if (tp & _obj_tp_generic_int) {
+    if (tp & generic_int) {
         return GetIntValue(a) == GetIntValue(b);
     }
 
-    else if (tp & _obj_tp_generic_str) {
+    else if (tp & generic_str) {
         return !strcmp(((char*)a), ((char*)b));
     }
 
@@ -187,7 +176,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_LOAD_NAME: {
-                pushstack(vm, NewObject(_obj_tp_generic_ref, (uint8_t *) (++vm->ip)));
+                pushstack(vm, NewObject(generic_ref, (uint8_t *) (++vm->ip)));
                 break;
             }
 
@@ -219,7 +208,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *a = resolve(vm, _ref_a);
                 Object *b = resolve(vm, popstack(vm));
 
-                if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
+                if (a->tp & generic_int && b->tp & generic_int) {
                     TailorInteger(_ref_a, (long)(GetIntValue(a) + GetIntValue(b)));
                     pushstack(vm, _ref_a);
                 }
@@ -233,7 +222,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *a = resolve(vm, _ref_a);
                 Object *b = resolve(vm, popstack(vm));
 
-                if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
+                if (a->tp & generic_int && b->tp & generic_int) {
                     TailorInteger(_ref_a, (long)(GetIntValue(a) - GetIntValue(b)));
                     pushstack(vm, _ref_a);
                 }
@@ -247,7 +236,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *a = resolve(vm, _ref_a);
                 Object *b = resolve(vm, popstack(vm));
 
-                if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
+                if (a->tp & generic_int && b->tp & generic_int) {
                     TailorInteger(_ref_a, (long)(GetIntValue(a) * GetIntValue(b)));
                     pushstack(vm, _ref_a);
                 }
@@ -261,7 +250,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *a = resolve(vm, _ref_a);
                 Object *b = resolve(vm, popstack(vm));
 
-                if (a->tp & _obj_tp_generic_int && b->tp & _obj_tp_generic_int) {
+                if (a->tp & generic_int && b->tp & generic_int) {
                     TailorInteger(_ref_a, (long)(GetIntValue(a) / GetIntValue(b)));
                     pushstack(vm, _ref_a);
                 }
@@ -281,8 +270,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 Object *_ref_obj = popstack(vm);
                 Object *obj = resolve(vm, _ref_obj);
 
-                if (obj->tp == _BOOL) {
-                    pushstack(vm, RebaseObject(_ref_obj, _BOOL, !(uint8_t)obj->ptr));
+                if (obj->tp == BYTE) {
+                    pushstack(vm, RebaseObject(_ref_obj, BYTE, !(uint8_t)obj->ptr));
                 }
 
                 else if (IS_INT(obj)) {
@@ -295,10 +284,10 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 break;
             }
 
-            case _INS_POP_JMP_TRUE: {
+            case _INS_JMP_TRUE: {
                 Object *obj = popstack(vm);
 
-                if (obj->tp == _BOOL && (uint8_t)obj->ptr) {
+                if (obj->tp == BYTE && ObjectIsTrue(obj)) {
                     vm->ip += *((short*) (vm->ip + 1));
                 } else {
                     vm->ip += sizeof(short);

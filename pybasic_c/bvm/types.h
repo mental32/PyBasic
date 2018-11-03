@@ -2,25 +2,23 @@
 #define _BASIC_TYPES_H
 
 enum ObjectType {
-    _obj_tp_u8 = 1,
-    _obj_tp_u16,
-    _obj_tp_u32,
+    u8  = 1,
+    u16 = 2,
+    u32 = 4,
 
-    _obj_tp_generic_ref,
-    _obj_tp_generic_int,
-    _obj_tp_generic_str,
-    _obj_tp_generic_flt,
-    _obj_tp_generic_bool,
+    generic_ref = 8,
+    generic_str = 16,
+    generic_int = 32,
+    generic_flt = 64,
 
     _obj_tp_literal = 128,
 };
 
-#define STRING (_obj_tp_generic_str)
-#define BOOL   (_obj_tp_generic_bool)
+#define STRING (generic_str)
 
-#define BYTE  (_obj_tp_u8  | _obj_tp_generic_int)
-#define SHORT (_obj_tp_u16 | _obj_tp_generic_int)
-#define LONG  (_obj_tp_u32 | _obj_tp_generic_int)
+#define BYTE  (u8  | generic_int)
+#define SHORT (u16 | generic_int)
+#define LONG  (u32 | generic_int)
 
 #define _BYTE  (BYTE  | _obj_tp_literal)
 #define _SHORT (SHORT | _obj_tp_literal)
