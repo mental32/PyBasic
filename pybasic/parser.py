@@ -160,17 +160,23 @@ def extract(source):
 
         parsed[ln] = row
 
-    parsed = {k: parsed[k] for k in sorted(parsed)}
+    parsed = {int(k): parsed[k] for k in sorted(parsed)}
     return (constants, varnames), parsed
 
 def tokenize(source):
     bytecode = bytearray()
+    branching, labels = {}, {}
+
     metadata, parsed = extract(source)
 
     header = create_header(b''.join(encode_const(word) for word in metadata[0]))
 
     for ln, src in parsed.items():
-        start = len(bytecode)
+        if ln in branching:
+            for pos in branching[ln]:
+                bytecode[pos:pos + 2] = struct.pack('=h', pos - len(bytecode))
+
+        labels[ln] = len(bytecode)
 
         if src[0] == 'let':
             bytecode += evaluate(metadata, src[3:])
@@ -182,8 +188,15 @@ def tokenize(source):
             *e, _g_ln = src[1:]
 
             bytecode += evaluate(metadata, e[:-1])
-            bytecode += _bvm_ins['pop_jmp_true'].to_bytes(1, sys.byteorder)
-            bytecode += struct.pack('=h', )
+            bytecode += _bvm_ins['jmp_true'].to_bytes(1, sys.byteorder)
+
+            if int(_g_ln) > ln:
+                branching.setdefault(int(_g_ln), [])
+                branching[int(_g_ln)].append(len(bytecode))
+                bytecode += struct.pack('=h', 0)
+            else:
+                print(labels[int(_g_ln)] - len(bytecode))
+                struct.pack('=h', labels[int(_g_ln)] - len(bytecode))
 
         elif src[0] == 'end':
             bytecode += _bvm_ins['return'].to_bytes(1, sys.byteorder)
