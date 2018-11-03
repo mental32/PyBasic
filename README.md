@@ -2,14 +2,13 @@
 
 A (dartmouth) BASIC inspired interpreter written in C/Python.
 
-A list of current known issues:
+## Issues
  - There is no REPL
- - All integers are either unsigned bytes or unsigned longs
- - Division will probably not work (currently behaves as floor division due to no floats)
- - Floats don't exist (yet)
- - If you get infinite loop, control-c will not work you will have to suspend and kill the process
- - There is 0 Garbage collection (nothing gets free'd)
- - After doing a lot of arithmetic ops due to a bug somewhere. Python randomly segfaults (possibly due with the lack of a GC).
+ - All integers are unsigned longs
+ - Division currently behaves as floor division due to no floating point integers
+ - If you get infinite loop, you will have to suspend and kill the process
+ - There is 0 Garbage collection & nothing gets free'd
+ - Python randomly segfaults when exiting, possibly due with the lack of a GC.
 
 Enjoy!
 
