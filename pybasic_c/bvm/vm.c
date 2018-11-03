@@ -90,9 +90,9 @@ static inline int GetIntValue(Object *obj) {
 
 static inline void TailorInteger(Object *o, long value) {
     if (value > 0 && value < 255) {
-        RebaseObject(o, _BYTE, value);
+        RebaseObject(o, _BYTE, (void*)value);
     } else {
-        RebaseObject(o, _LONG, value);
+        RebaseObject(o, _LONG, (void*)value);
     }
 }
 
@@ -142,6 +142,10 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
 
     // Read size of constants pool.
     short dp = 0, data_size = *((short*) (vm->ip));
+
+    // Map the constants pool to vm->data
+    // This is for a lookup speed of O(n)
+    // When refrencing constants.
     char *p = (char *)vm->ip + 2, *end = (char *)(data_size + vm->ip + 2);
 
     while (p < end) {
@@ -259,10 +263,12 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_CMP: {
-                Object *left = resolve(vm, popstack(vm));
-                Object *right = resolve(vm, popstack(vm));
+                if (vm->sp == 1) {
+                    pushstack(vm, NewObject(BYTE, ObjectIsTrue(resolve(vm, popstack(vm)))));
+                } else {
+                    pushstack(vm, NewObject(BYTE, CompareObjects(resolve(vm, popstack(vm)), resolve(vm, popstack(vm)))));
+                }
 
-                pushstack(vm, NewObject(_BOOL, CompareObjects(left, right)));
                 break;
             }
 
@@ -275,7 +281,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 }
 
                 else if (IS_INT(obj)) {
-                    pushstack(vm, RebaseObject(_ref_obj, _BOOL, !GetIntValue(obj)));
+                    pushstack(vm, NewObject(BYTE, !GetIntValue(obj)));
                 }
 
                 else if (IS_STR(obj)) {
