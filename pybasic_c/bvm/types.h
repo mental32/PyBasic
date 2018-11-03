@@ -25,10 +25,13 @@ enum ObjectType {
 #define _BYTE  (BYTE  | _obj_tp_literal)
 #define _SHORT (SHORT | _obj_tp_literal)
 #define _LONG  (LONG  | _obj_tp_literal)
-#define _BOOL  (BOOL  | _obj_tp_literal)
 
-#define IS_LIT(o) ((o->tp) | _obj_tp_literal)
-#define IS_INT(o) ((o->tp) | _obj_tp_generic_int)
-#define IS_STR(o) ((o->tp) | _obj_tp_generic_str)
+#define IS_INT(o) ((o->tp) | generic_int)
+#define IS_STR(o) ((o->tp) | generic_str)
+
+static const _Bool _true = 1;
+static const _Bool _false = 0;
+static const _Bool *True = &_true;
+static const _Bool *False = &_false;
 
 #endif
