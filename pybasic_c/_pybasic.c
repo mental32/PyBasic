@@ -46,7 +46,9 @@ token_type(PyObject *self, PyObject *args)
     size_t length = strlen(token);
 
     if (length == 1) {
-        if (((int) *token) >= 48 && ((int) *token) <= 57) {
+        if (((int) *token) >= 42 && ((int) *token) <= 47) {
+            tp = PyUnicode_FromString("O");
+        } else if (((int) *token) >= 48 && ((int) *token) <= 57) {
             tp = PyUnicode_FromString("I");
         } else {
             tp = PyUnicode_FromString("V");
