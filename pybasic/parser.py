@@ -56,7 +56,7 @@ def resolve(token):
     elif token in '+-*/':
         return Operator(token)
 
-    elif token in reserved_words:
+    elif token in reserved_words or token in ('='):
         return None
 
     return token
