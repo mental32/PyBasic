@@ -210,8 +210,20 @@ def tokenize(source):
             bytecode += evaluate(metadata, src[1:])
             bytecode += _bvm_ins['print'].to_bytes(1, sys.byteorder)
 
+        elif src[0] == 'goto':
+            t = int(src[1])
+
+            bytecode += _bvm_ins['goto'].to_bytes(1, sys.byteorder)
+
+            if t > ln:
+                branching.setdefault(t, [])
+                branching[t].append(len(bytecode))
+                bytecode += struct.pack('=h', 0)
+            else:
+                bytecode += struct.pack('=h', labels[t] - len(bytecode))
+
         elif len(src) >= 3 and src[1] == '=' and src[2] != '=':
-            bytecode += evaluate(metadata, srd[2:])
+            bytecode += evaluate(metadata, src[2:])
             bytecode += _bvm_ins['load_name'].to_bytes(1, sys.byteorder)
             bytecode += metadata[1].index(src[0]).to_bytes(1, sys.byteorder)
             bytecode += _bvm_ins['store'].to_bytes(1, sys.byteorder)
