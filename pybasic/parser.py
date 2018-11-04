@@ -142,6 +142,9 @@ def extract(source):
         lt = None
 
         for token in stream:
+            if token == 'rem':
+                break
+
             if token not in reserved_words and token not in '!=*/+-{}[]@:;#~?.><,\\|\"\'£$%^&*()_`¬':
                 if is_string(token) and token not in constants:
                     constants.append(token[1:-1])
@@ -184,7 +187,10 @@ def tokenize(source):
 
         labels[ln] = len(bytecode)
 
-        if src[0] == 'let':
+        if not src:
+            bytecode += _bvm_ins['nop'].to_bytes(1, sys.byteorder)
+
+        elif src[0] == 'let':
             bytecode += evaluate(metadata, src[3:])
             bytecode += _bvm_ins['load_name'].to_bytes(1, sys.byteorder)
             bytecode += metadata[1].index(src[1]).to_bytes(1, sys.byteorder)
