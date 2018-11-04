@@ -110,7 +110,7 @@ static inline void TailorInteger(Object *o, long value) {
 }
 
 static inline int TypeCheckExact(Object *a, Object *b) {
-    if (IS_STR(a) && IS_STR(b)) {
+    if (a->tp & generic_str && b->tp & generic_str) {
         return generic_str;
     } else if (IS_INT(a) && IS_INT(b)) {
         return generic_int;
