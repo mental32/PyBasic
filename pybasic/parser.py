@@ -180,7 +180,7 @@ def tokenize(source):
     for ln, src in parsed.items():
         if ln in branching:
             for pos in branching[ln]:
-                bytecode[pos:pos + 2] = struct.pack('=h', pos - len(bytecode))
+                bytecode[pos:pos + 2] = struct.pack('=h', len(bytecode) - pos)
 
         labels[ln] = len(bytecode)
 
@@ -201,8 +201,7 @@ def tokenize(source):
                 branching[int(_g_ln)].append(len(bytecode))
                 bytecode += struct.pack('=h', 0)
             else:
-                print(labels[int(_g_ln)] - len(bytecode))
-                struct.pack('=h', labels[int(_g_ln)] - len(bytecode))
+                bytecode += struct.pack('=h', labels[int(_g_ln)] - len(bytecode))
 
         elif src[0] == 'end':
             bytecode += _bvm_ins['return'].to_bytes(1, sys.byteorder)
