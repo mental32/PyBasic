@@ -85,7 +85,7 @@ def evaluate(metadata, tokens):
                 expression += struct.pack('=B', real)
             else:
                 expression += _bvm_ins['load_long'].to_bytes(1, sys.byteorder)
-                expression += struct.pack('=l', real)
+                expression += struct.pack('@l', real)
 
         elif isinstance(real, bool):
             expression += _bvm_ins['load_byte'].to_bytes(1, sys.byteorder)

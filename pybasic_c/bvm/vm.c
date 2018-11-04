@@ -42,6 +42,11 @@ static void PrintObject(Object *obj) {
             break;
         }
 
+        case LONG: {
+            printf("%ld", *((long*)obj->ptr));
+            break;
+        }
+
         case _LONG: {
              printf("%lu", ((unsigned long)obj->ptr));
              break;
@@ -207,8 +212,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             }
 
             case _INS_LOAD_LONG: {
-                pushstack(vm, NewObject(LONG, ((long*) (++vm->ip))));
-                vm->ip += 3;
+                pushstack(vm, NewObject(LONG, ((long*) (vm->ip + 1))));
+                vm->ip += sizeof(*((long*) (vm->ip + 1)));
                 break;
             }
 
