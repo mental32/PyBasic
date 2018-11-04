@@ -306,9 +306,9 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
             case _INS_JMP_TRUE: {
                 Object *obj = popstack(vm);
 
-                if (obj->tp == BYTE && ObjectIsTrue(obj)) {
+                if (IS_INT(obj) && GetIntValue(obj)) {
                     vm->ip += *((short*) (vm->ip + 1));
-                } else {
+                } else if ((bytecode_size - (vm->ip - bytecode)) >= 2) {
                     vm->ip += sizeof(short);
                 }
 
