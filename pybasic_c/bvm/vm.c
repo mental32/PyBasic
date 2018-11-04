@@ -178,6 +178,10 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
         // printf("! %d\t:: %p\t:: %ld\n", *vm->ip, vm->ip, vm->sp);
 
         switch (*vm->ip) {
+            case _INS_NOP: {
+                break;
+            }
+
             case _INS_RETURN: {
                 vm->_running = 0;
                 _status = 0;
