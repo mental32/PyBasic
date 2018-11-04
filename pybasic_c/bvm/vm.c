@@ -279,22 +279,17 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size) {
                 if (vm->sp == 1) {
                     pushstack(vm, NewObject(BYTE, ObjectIsTrue(resolve(vm, popstack(vm)))));
                 } else {
-                    pushstack(vm, NewObject(BYTE, CompareObjects(resolve(vm, popstack(vm)), resolve(vm, popstack(vm)))));
+                    pushstack(vm, NewObject(_BYTE, CompareObjects(resolve(vm, popstack(vm)), resolve(vm, popstack(vm)))));
                 }
 
                 break;
             }
 
             case _INS_NOT: {
-                Object *_ref_obj = popstack(vm);
-                Object *obj = resolve(vm, _ref_obj);
+                Object *obj = resolve(vm, popstack(vm));
 
-                if (obj->tp == BYTE) {
-                    pushstack(vm, RebaseObject(_ref_obj, BYTE, !(uint8_t)obj->ptr));
-                }
-
-                else if (IS_INT(obj)) {
-                    pushstack(vm, NewObject(BYTE, !GetIntValue(obj)));
+                if (IS_INT(obj)) {
+                    pushstack(vm, NewObject(obj->tp, !GetIntValue(obj)));
                 }
 
                 else if (IS_STR(obj)) {
