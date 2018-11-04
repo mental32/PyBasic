@@ -42,8 +42,13 @@ static void PrintObject(Object *obj) {
             break;
         }
 
+        case _LONG: {
+             printf("%lu", ((unsigned long)obj->ptr));
+             break;
+        }
+
         default: {
-            printf("{(nil)?(%d)}\n", obj->tp);
+            printf("{(nil)?(%d)}", obj->tp);
         }
     }
 }
