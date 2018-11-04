@@ -169,7 +169,7 @@ def extract(source):
 
         parsed[ln] = row
 
-    parsed = {int(k): parsed[k] for k in sorted(parsed)}
+    parsed = {int(k): parsed[k] for k in sorted(parsed, key=int)}
     return (constants, varnames), parsed
 
 def tokenize(source):
