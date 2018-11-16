@@ -21,7 +21,7 @@ def main(args):
 	try:
 		_pybvm.run_source(source)
 	except RuntimeError as err:
-		print(err)
+		sys.exit(err)
 
 	if args.time:
 		print(time.time() - t1)
