@@ -1,4 +1,4 @@
-# PyBASIC
+# PyBasic
 
 A (dartmouth) BASIC inspired interpreter written in C/Python.
 
@@ -11,6 +11,21 @@ A (dartmouth) BASIC inspired interpreter written in C/Python.
  - Python randomly segfaults when exiting, possibly due with the lack of a GC.
 
 Enjoy!
+
+### Hello world!
+Hello world with PyBasic
+```basic
+00 REM Save this as hello.bas
+10 print "Hello world!"
+20 end
+```
+Then run with `python -m pybasic hello.bas`.
+
+It should then produce the following
+```
+$> python -m pybasic hello.bas
+Hello world!
+```
 
 ## Installing
 
