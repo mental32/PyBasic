@@ -12,7 +12,7 @@ A (dartmouth) BASIC inspired interpreter written in C/Python.
 
 Enjoy!
 
-### Hello world!
+## Examples
 Hello world with PyBasic
 ```basic
 00 REM Save this as hello.bas
