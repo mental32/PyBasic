@@ -1,3 +1,17 @@
+#include <stdint.h>
+#include <stddef.h>
+
+#include "../lib/obj.h"
+#include "ins.h"
+#include "vm.h"
+
+#define _BASIC_VM_DEBUG 1
+
+#define jump(vm) vm->ip += *((short*) (vm->ip + 1))
+#define skip(vm) vm->ip += sizeof(short)
+
+#define store(name, value) vm->varspace[*((uint8_t *)name->ptr)] = resolve(vm, value)
+
 int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 {
     int _status = 0;
@@ -13,7 +27,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
         vm->insc++;
 
         #ifdef _BASIC_VM_DEBUG
-        printf("! %d\t:: %p\t:: %ld\n", *vm->ip, vm->ip, vm->sp);
+        printf("! ins=%d\t:: ip=%p\t:: sp=%ld\n", *vm->ip, vm->ip, vm->sp);
         #endif
 
         switch (*vm->ip) {
@@ -31,7 +45,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
                 Object *name = popstack(vm);
                 Object *value = popstack(vm);
 
-                vm->varspace[*((uint8_t *)name->ptr)] = resolve(vm, value);
+                store(name, value);
+                Object_INCREF(value);
                 break;
             }
 
@@ -45,20 +60,9 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
                 break;
             }
 
-            case _INS_LOAD_LONG: {
+            case _INS_LOAD_INT: {
                 pushstack(vm, NewObject(LONG, ((long*) (vm->ip + 1))));
                 vm->ip += sizeof(*((long*) (vm->ip + 1)));
-                break;
-            }
-
-            case _INS_LOAD_SHORT: {
-                pushstack(vm, NewObject(SHORT, ((short*) (++vm->ip))));
-                vm->ip += 1;
-                break;
-            }
-
-            case _INS_LOAD_BYTE: {
-                pushstack(vm, NewObject(BYTE, ((uint8_t*) (++vm->ip))));
                 break;
             }
 
@@ -120,9 +124,13 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
             case _INS_CMP: {
                 if (vm->sp == 1) {
-                    pushstack(vm, NewObject(BYTE, ObjectIsTrue(resolve(vm, popstack(vm)))));
+                    Object *obj = resolve(vm, popstack(vm));
+                    pushstack(vm, Object_Bool(Object_bool(obj)));
                 } else {
-                    pushstack(vm, NewObject(_BYTE, CompareObjects(resolve(vm, popstack(vm)), resolve(vm, popstack(vm)))));
+                    Object *left = resolve(vm, popstack(vm));
+                    Object *right = resolve(vm, popstack(vm));
+
+                    pushstack(vm, Object_Bool(Object_compare(left, right)));
                 }
 
                 break;
@@ -130,24 +138,17 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
             case _INS_NOT: {
                 Object *obj = resolve(vm, popstack(vm));
-
-                if (IS_INT(obj)) {
-                    pushstack(vm, NewObject(obj->tp, !GetIntValue(obj)));
-                }
-
-                else if (IS_STR(obj)) {
-                }
-
+                pushstack(vm, Object_Bool(!Object_bool(obj)));
                 break;
             }
 
             case _INS_JMP_TRUE: {
                 Object *obj = popstack(vm);
 
-                if (IS_INT(obj) && GetIntValue(obj)) {
-                    vm->ip += *((short*) (vm->ip + 1));
-                } else if ((bytecode_size - (vm->ip - bytecode)) >= 2) {
-                    vm->ip += sizeof(short);
+                if (Object_bool(obj)) {
+                    jump(vm);
+                } else if ((bytecode_size - (vm->ip - bytecode)) >= 2){
+                    skip(vm);
                 }
 
                 break;
@@ -157,10 +158,10 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
                 while (vm->sp--) {
                     Object *item = resolve(vm, vm->stack[vm->sp]);
                     vm->stack[vm->sp] = NULL;
-                    PrintObject(item);
+                    Object_print(item);
+                    Object_DECREF(item);
                 }
                 printf("\n");
-                vm->sp = 0;
                 break;
             }
 
