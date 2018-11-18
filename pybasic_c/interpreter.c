@@ -4,7 +4,7 @@
 #include <structmember.h>
 
 #include "_pybasic.h"
-#include "bvm/vm.h"
+#include "bvm/basic.h"
 
 typedef struct {
     PyObject_HEAD

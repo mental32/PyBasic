@@ -2,7 +2,7 @@
 
 #define PYBASIC_CORE
 #include "_pybasic.h"
-#include "bvm/ins.h"
+#include "bvm/vm/ins.h"
 
 static void populate_ins_dict(PyObject *dict) {
     PyDict_SetItem(dict, PyUnicode_FromString("nop"),        PyLong_FromLong(_INS_NOP));
