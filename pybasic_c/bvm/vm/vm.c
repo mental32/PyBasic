@@ -2,15 +2,13 @@ VMState *VirtualMachine_new(uint8_t *bytecode)
 {
     VMState *vm = (VMState *) malloc(sizeof(VMState));
     vm->ip = bytecode;
-    vm->_running = 0;
 
-    // vm->data = (char **)malloc((size_t) 20);
+    vm->_running = 0;
+    vm->__state = 0;
 
     vm->insc = 0;
     vm->sp = 0;
-
-    // vm->stack = (Object **)malloc((size_t) 20);
-    // vm->varspace = (Object **)malloc((size_t) 20);
+    return vm
 }
 
 int VirtualMachine_init(void)
@@ -32,9 +30,12 @@ int VirtualMachine_init(void)
 
     // Then jump ahead of it.
     vm->ip += data_size - 1;
+
+
+    return 1;
 }
 
 int VirtualMachine_free(VMState *vm)
 {
-    
+    return 1;
 }
