@@ -3,7 +3,8 @@
 
 enum STATUS {
 	OK = 0,
-	PANIC
+	ABORT,
+	PANIC,
 };
 
 #endif

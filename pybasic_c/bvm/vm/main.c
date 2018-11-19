@@ -187,11 +187,13 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
         }
     }
 
-    if (vm->_running) {
+    if (vm->_running)
+    {
         _status = 2;
     }
 
     VirtualMachine_free(vm);
 
+exit:
     return _status;
 }

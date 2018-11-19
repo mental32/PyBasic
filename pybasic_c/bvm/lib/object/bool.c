@@ -16,7 +16,9 @@ Create a new Object with a boolean type.
 */
 Object *Object_Bool(int n)
 {
-
+    if (n)
+        return Object_New(generic_bool, True);
+    return Object_New(generic_bool, False);
 }
 
 /*
@@ -34,6 +36,9 @@ int Object_bool(Object *obj)
 }
 
 /*
+Compare two objects.
+
+Objects are only equal if they are of the same type and contain the same data.
 */
 int Object_Compare(Object *left, Object *right)
 {
