@@ -1,0 +1,30 @@
+#include "../types.h"
+
+/*
+write an object to stdout.
+*/
+void Object_print(Object *obj)
+{
+    // Gotta check for dem null pointers
+    if (!obj) {
+        return;
+    }
+
+    switch(obj->tp) {
+        case generic_str: {
+            printf("%s", (char*)obj->ptr);
+            break;
+        }
+
+        case INT: {
+            printf("%ld", *((long*)obj->ptr));
+            break;
+        }
+
+        default: {
+            // Should we be doing something else apart
+            // from writing garbage?
+            printf("{(nil)?(%d)}", obj->tp);
+        }
+    }
+}
