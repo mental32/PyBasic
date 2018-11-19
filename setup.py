@@ -1,3 +1,5 @@
+import os
+import glob
 from distutils.core import setup, Extension
 
 ext_sources = [fp for files in (glob.glob('%s/*.c' % fp) for path in os.walk('.') for fp in (path[0],)) for fp in files if files]
