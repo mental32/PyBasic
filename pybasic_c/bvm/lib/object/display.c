@@ -1,7 +1,7 @@
-#include "../types.h"
+#include "base.h"
 
 /*
-write an object to stdout.
+format and write an objects data to stdout (no newline).
 */
 void Object_print(Object *obj)
 {
@@ -22,8 +22,8 @@ void Object_print(Object *obj)
         }
 
         default: {
-            // Should we be doing something else apart
-            // from writing garbage?
+            // Should we be doing something else
+            // apart from writing garbage?
             printf("{(nil)?(%d)}", obj->tp);
         }
     }
