@@ -1,6 +1,11 @@
 #ifndef _BASIC_VMSTATE_H
 #define _BASIC_VMSTATE_H
 
+#include <stddef.h>
+
+#include "../lib/status.h"
+#include "../lib/object/base.h"
+
 typedef struct {
     uint8_t *ip;
     uint8_t _running;
@@ -14,6 +19,10 @@ typedef struct {
     Object **stack;
     Object **varspace;
 } VMState;
+
+VMState *VirtualMachine_new(uint8_t *bytecode);
+int VirtualMachine_init(VMState *vm);
+int VirtualMachine_free(VMState *vm);
 
 inline int VMState_pushstack(VMState *vm, Object *item) {
     if (!item || !vm) {

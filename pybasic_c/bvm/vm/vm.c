@@ -1,3 +1,8 @@
+#include <stdlib.h>
+#include <string.h>
+
+#include "vm.h"
+
 VMState *VirtualMachine_new(uint8_t *bytecode)
 {
     VMState *vm = (VMState *) malloc(sizeof(VMState));
@@ -8,10 +13,10 @@ VMState *VirtualMachine_new(uint8_t *bytecode)
 
     vm->insc = 0;
     vm->sp = 0;
-    return vm
+    return vm;
 }
 
-int VirtualMachine_init(void)
+int VirtualMachine_init(VMState *vm)
 {
     // Read size of constants pool.
     short dp = 0, data_size = *((short*) (vm->ip));

@@ -10,26 +10,21 @@ enum object_type {
     generic_str = 16,
     generic_int = 32,
     generic_flt = 64,
-
-    _obj_tp_literal = 128,
+    generic_bool = 128,
 };
 
-#define STRING (generic_str)
+#define STRING   (generic_str)
+#define INTEGER  (u32 | generic_int)
 
-#define BYTE  (u8  | generic_int)
-#define SHORT (u16 | generic_int)
-#define LONG  (u32 | generic_int)
+#define is_int(o) ((o->tp) & generic_int)
+#define is_str(o) ((o->tp) & generic_str)
 
-#define _BYTE  (BYTE  | _obj_tp_literal)
-#define _SHORT (SHORT | _obj_tp_literal)
-#define _LONG  (LONG  | _obj_tp_literal)
+#define DEREF_INT(o) (*(long*)o->ptr)
+#define DEREF_STR(o) ((char*)o->ptr)
 
-#define IS_INT(o) ((o->tp) & generic_int)
-#define IS_STR(o) ((o->tp) & generic_str)
-
-static const _Bool _true = 1;
-static const _Bool _false = 0;
-static const _Bool *True = &_true;
-static const _Bool *False = &_false;
+const _Bool _true;
+const _Bool _false;
+const _Bool *True;
+const _Bool *False;
 
 #endif
