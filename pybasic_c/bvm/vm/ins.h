@@ -11,8 +11,6 @@ enum BYTECODE {
     _INS_LOAD_CONST,
 
     _INS_LOAD_LONG,
-    _INS_LOAD_SHORT,
-    _INS_LOAD_BYTE,
 
     _INS_BINARY_ADD,
     _INS_BINARY_SUB,
@@ -26,7 +24,6 @@ enum BYTECODE {
 
     _INS_GOTO,
     _INS_PRINT,
-
 };
 
 #endif
