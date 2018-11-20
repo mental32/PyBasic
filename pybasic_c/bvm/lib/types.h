@@ -2,15 +2,12 @@
 #define _BASIC_TYPES_H
 
 enum object_type {
-    u8  = 1,
-    u16 = 2,
-    u32 = 4,
+    generic_ref = 1,
+    generic_str = 2,
+    generic_int = 4,
+    generic_flt = 8,
 
-    generic_ref = 8,
-    generic_str = 16,
-    generic_int = 32,
-    generic_flt = 64,
-    generic_bool = 128,
+    generic_bool = 16,
 };
 
 #define STRING   (generic_str)
