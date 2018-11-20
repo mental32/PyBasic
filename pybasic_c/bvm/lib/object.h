@@ -6,13 +6,6 @@
 #define Object_INCREF(obj) obj->rc++
 #define Object_DECREF(obj) obj->rc--
 
-Object *Object_True;
-Object *Object_False;
-
-/* object/base.c */
-Object *Object_New(uint8_t tp, void *data);
-int Object_Free(Object *obj);
-
 /* object/bool.c */
 Object *Object_Bool(int n);
 int Object_bool(Object *obj);
