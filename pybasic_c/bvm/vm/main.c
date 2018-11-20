@@ -3,10 +3,11 @@
 #include <stdio.h>
 
 #include "../lib/object.h"
+
 #include "ins.h"
 #include "vm.h"
 
-#define _BASIC_VM_DEBUG 1
+#define __BVM_DEBUG 1
 
 #define resolve VMState_resolve_ref
 
@@ -20,23 +21,23 @@ At this point its basically one function with a huge switch case statement.
 */
 int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 {
-    int _status = 0;
+    int _status = OK;
 
     if (bytecode_size < 2) {
-        return _status;
+        return OK;
     }
 
     VMState *vm = VirtualMachine_new(bytecode);
     
     if (!VirtualMachine_init(vm)) {
-        return 2;
+        return PANIC;
     }
 
     while (vm->_running && !((size_t)(vm->ip - bytecode) >= bytecode_size)) {
         vm->ip++;
         vm->insc++;
 
-        #ifdef _BASIC_VM_DEBUG
+        #if __BVM_DEBUG
         printf("! ins=%d\t:: ip=%p\t:: sp=%ld\n", *vm->ip, vm->ip, vm->sp);
         #endif
 
@@ -47,7 +48,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
             case _INS_RETURN: {
                 vm->_running = 0;
-                _status = 0;
+                _status = OK;
                 break;
             }
 
@@ -181,7 +182,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
             }
 
             default: {
-                _status = 1;
+                _status = PANIC;
                 vm->_running = 0;
             }
         }
@@ -189,11 +190,10 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
     if (vm->_running)
     {
-        _status = 2;
+        _status = PANIC;
     }
 
     VirtualMachine_free(vm);
 
-exit:
     return _status;
 }
