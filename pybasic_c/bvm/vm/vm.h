@@ -20,6 +20,10 @@ typedef struct {
     Object **varspace;
 } VMState;
 
+typedef struct {
+
+} ByteCodeHeader;
+
 VMState *VirtualMachine_new(uint8_t *bytecode);
 int VirtualMachine_init(VMState *vm);
 int VirtualMachine_free(VMState *vm);
