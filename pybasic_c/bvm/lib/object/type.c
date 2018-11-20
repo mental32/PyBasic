@@ -7,9 +7,9 @@ If their types match return that type flag, otherwise return 0.
 */
 int Object_TypeCheck(Object *left, Object *right)
 {
-	if (!(left->tp - right->tp)) {
-		return left->tp;
-	}
+    if (!(left->tp - right->tp)) {
+        return left->tp;
+    }
 
-	return 0;
+    return 0;
 }
