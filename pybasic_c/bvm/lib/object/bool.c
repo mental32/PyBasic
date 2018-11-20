@@ -5,8 +5,8 @@
 Object *Object_New(uint8_t tp, void *data);
 int Object_TypeCheck(Object *left, Object *right);
 
-const _Bool _true = 1;
-const _Bool _false = 0;
+static const _Bool _true = 1;
+static const _Bool _false = 0;
 const _Bool *True = &_true;
 const _Bool *False = &_false;
 
