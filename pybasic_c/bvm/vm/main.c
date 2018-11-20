@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "../lib/object.h"
+#include "../lib/prelude.h"
 
 #include "ins.h"
 #include "vm.h"
