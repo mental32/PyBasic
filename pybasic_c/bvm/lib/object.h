@@ -3,9 +3,6 @@
 
 #include "object/base.h"
 
-#define Object_INCREF(obj) obj->rc++
-#define Object_DECREF(obj) obj->rc--
-
 /* object/bool.c */
 Object *Object_Bool(int n);
 int Object_bool(Object *obj);
