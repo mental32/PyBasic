@@ -15,8 +15,6 @@ static void populate_ins_dict(PyObject *dict) {
     PyDict_SetItem(dict, PyUnicode_FromString("load_name"),  PyLong_FromLong(_INS_LOAD_NAME));
 
     PyDict_SetItem(dict, PyUnicode_FromString("load_long"),  PyLong_FromLong(_INS_LOAD_LONG));
-    // PyDict_SetItem(dict, PyUnicode_FromString("load_short"), PyLong_FromLong(_INS_LOAD_SHORT));
-    // PyDict_SetItem(dict, PyUnicode_FromString("load_byte"),  PyLong_FromLong(_INS_LOAD_BYTE));
 
     PyDict_SetItem(dict, PyUnicode_FromString("binary_add"), PyLong_FromLong(_INS_BINARY_ADD));
     PyDict_SetItem(dict, PyUnicode_FromString("binary_sub"), PyLong_FromLong(_INS_BINARY_SUB));
