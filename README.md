@@ -3,12 +3,12 @@
 A (dartmouth) BASIC inspired interpreter written in C/Python.
 
 # Index
- - [installing](##Installing)
- - [usage](##Usage)
- - [issues](##Issues)
- - [examples](##Examples)
- - [progress](##Progress)
- - [BVM](##BVM)
+ - [installing](#installing)
+ - [usage](#usage)
+ - [issues](#issues)
+ - [examples](#examples)
+ - [progress](#progress)
+ - [BVM](#bvm)
 
 ## Installing
 
