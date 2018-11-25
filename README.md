@@ -2,12 +2,14 @@
 
 A (dartmouth) BASIC inspired interpreter written in C/Python.
 
+PyBasic has a C bytecode VM for its runtime and a Python module for its source compiler and runtime interface.
+
 # Index
- - [installing](#installing)
- - [usage](#usage)
- - [issues](#issues)
- - [examples](#examples)
- - [progress](#progress)
+ - [Installing](#installing)
+ - [Usage](#usage)
+ - [Issues](#issues)
+ - [Examples](#examples)
+ - [Progress](#progress)
  - [BVM](#bvm)
 
 ## Installing
@@ -26,8 +28,6 @@ Command line usage for pybasic is pretty much
  - All integers are unsigned longs
  - Division currently behaves as floor division due to no floating point integers
  - If you get infinite loop, you will have to suspend and kill the process
- - There is 0 Garbage collection & nothing gets free'd
- - Python randomly segfaults when exiting, possibly due with the lack of a GC.
 
 Enjoy!
 
@@ -59,12 +59,11 @@ Working:
 Planned:
  - Builtins
  - I/O
+ - GC
 
 ## BVM
 
 PyBasic runs on a bytecode interepreter commonly refered to as the BVM.
-
-PyBasic's runtime completely takes place in the BVM and its source compilation takes place in Python itself.
 
 ### BVM Opcodes
 
@@ -85,3 +84,29 @@ PyBasic's runtime completely takes place in the BVM and its source compilation t
 | 0x0C     | JMP_TRUE   | pop a, if a is truthy jump by the next short                            |
 | 0x0D     | GOTO       | change the instruction pointer by the value of the next short           |
 | 0x0E     | PRINT      | ehaust the stack, displaying the items to stdout                        |
+
+
+### Garbage Collection
+
+Currently the BVM implements a refrence counting garbage collection.
+
+Internally these object refrence counts are modified with DECREF and INCREF macros.
+```c
+/* Increase an objects refrence count (without any checks) */
+#define Object_INCREF(o) o->rc++
+
+/* If the object is not null, increase its refrence count. */
+#define Object_XINCREF(o) if (o != NULL) o->rc++
+
+/* Decrease an objects refrence count (without any checks) */
+#define Object_DECREF(o) o->rc--
+
+/* If the object is not null, decrease its refrence count. */
+#define Object_XDECREF(o) if (o != NULL) o->rc--
+
+/* If decreasing the objects refrence count will cause it to be forgotten, it is free'd. */
+#define Object_FDECREF(o) if (!--o->rc) Object_free(o)
+
+/* Chains Object_XDECREF (null check) and Object_FDECREF (free if forgotten). */
+#define Object_UDECREF(o) if (o != NULL && !(--o->rc)) Object_Free(o)
+```
