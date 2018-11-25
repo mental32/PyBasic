@@ -19,7 +19,7 @@ Object *Object_rebase(Object *dst, uint8_t tp, void *data, uint8_t rc);
 #define Object_INCREF(o) o->rc++
 
 /* If the object is not null, increase its refrence count. */
-#define Object_XINCREF(o) o->rc++
+#define Object_XINCREF(o) if (o != NULL) o->rc++
 
 /* Decrease an objects refrence count (without any checks) */
 #define Object_DECREF(o) o->rc--
