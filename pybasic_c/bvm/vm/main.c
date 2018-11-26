@@ -10,11 +10,51 @@
 
 #define __BVM_DEBUG 1
 
-#define resolve VMState_resolve_ref
-
 #define jump(vm) vm->ip += *((short*) (vm->ip + 1))
 #define skip(vm) vm->ip += sizeof(short)
-#define store(name, value) vm->varspace[*((uint8_t *)name->ptr)] = resolve(vm, value)
+
+/*
+*/
+inline int VMState_pushstack(VMState *vm, Object *item) {
+    if (!item || !vm) {
+        return 0;
+    } else {
+        vm->stack[vm->sp++] = item;
+
+        // Object is not being refrenced by the stack
+        // Gotta increase the refrence count
+        Object_INCREF(item);
+    }
+
+    return 1;
+}
+
+inline Object *VMState_popstack(VMState *vm) {
+    if (!vm) {
+        return NULL;
+    }
+
+    Object *item = vm->stack[--vm->sp];
+    vm->stack[vm->sp] = NULL;
+
+    // Lower the refrence count of the item we just popped off
+    // since its no longer being refrenced by in the stack.
+    Object_DECREF(item);
+
+    return item;
+}
+
+inline Object *VMState_resolve(VMState *vm, Object *ref) {
+    Object *obj = ref;
+
+    while (obj->tp == generic_ref) {
+        obj = vm->varspace[*((uint8_t*)obj->ptr)];
+    }
+
+    return obj;
+}
+
+#define store(name, value) vm->varspace[*((uint8_t *)name->ptr)] = VMState_resolve(vm, value)
 
 /*
 Entry point for the VM.
@@ -33,6 +73,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
     if (!VirtualMachine_init(vm)) {
         return PANIC;
     }
+
+    vm->_running = 1;
 
     while (vm->_running && !((size_t)(vm->ip - bytecode) >= bytecode_size)) {
         vm->ip++;
@@ -68,7 +110,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
             }
 
             case _INS_LOAD_CONST: {
-                VMState_pushstack(vm, Object_String(vm->data[*++vm->ip]));
+                VMState_pushstack(vm, Object_String(vm->const_pool[*++vm->ip]));
                 break;
             }
 
@@ -136,11 +178,11 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
             case _INS_CMP: {
                 if (vm->sp == 1) {
-                    Object *obj = resolve(vm, VMState_popstack(vm));
+                    Object *obj = VMState_resolve(vm, VMState_popstack(vm));
                     VMState_pushstack(vm, Object_Bool(Object_bool(obj)));
                 } else {
-                    Object *left = resolve(vm, VMState_popstack(vm));
-                    Object *right = resolve(vm, VMState_popstack(vm));
+                    Object *left = VMState_resolve(vm, VMState_popstack(vm));
+                    Object *right = VMState_resolve(vm, VMState_popstack(vm));
 
                     VMState_pushstack(vm, Object_Bool(Object_Compare(left, right)));
                 }
@@ -149,7 +191,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
             }
 
             case _INS_NOT: {
-                Object *obj = resolve(vm, VMState_popstack(vm));
+                Object *obj = VMState_resolve(vm, VMState_popstack(vm));
                 VMState_pushstack(vm, Object_Bool(!Object_bool(obj)));
                 break;
             }
@@ -168,10 +210,10 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
             case _INS_PRINT: {
                 while (vm->sp--) {
-                    Object *item = resolve(vm, vm->stack[vm->sp]);
+                    Object *item = VMState_resolve(vm, vm->stack[vm->sp]);
                     vm->stack[vm->sp] = NULL;
                     Object_print(item);
-                    Object_DECREF(item);
+                    Object_UDECREF(item);
                 }
                 printf("\n");
                 break;
