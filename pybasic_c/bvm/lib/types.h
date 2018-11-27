@@ -17,8 +17,8 @@ enum object_type {
 #define is_str(o) ((o->tp) & generic_str)
 #define is_number(o) (((o->tp) & generic_flt) || is_int(o))
 
-#define DEREF_FLT(o) (*(float*)o->ptr)
-#define DEREF_INT(o) (*(long*)o->ptr)
+#define DEREF_FLT(o) ((float)o->ptr)
+#define DEREF_INT(o) ((long)o->ptr)
 #define DEREF_STR(o) ((char*)o->ptr)
 
 const _Bool *True;
