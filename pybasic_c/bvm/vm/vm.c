@@ -13,6 +13,7 @@ VMState *VirtualMachine_new(uint8_t *bytecode)
 {
     VMState *vm = (VMState *) malloc(sizeof(VMState));
     vm->ip = bytecode;
+    vm->varspace = NULL;
 
     vm->_running = 0;
     vm->__state = 0;
