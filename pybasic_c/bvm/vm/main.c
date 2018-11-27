@@ -8,8 +8,6 @@
 #include "ins.h"
 #include "vm.h"
 
-#define __BVM_DEBUG 1
-
 #define jump(vm) vm->ip += *((short*) (vm->ip + 1))
 #define skip(vm) vm->ip += sizeof(short)
 

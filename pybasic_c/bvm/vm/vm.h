@@ -6,6 +6,8 @@
 #include "../lib/status.h"
 #include "../lib/object/base.h"
 
+#define __BVM_DEBUG 1
+
 /*
 Helper struct for containing bytecode metadata.
 */
