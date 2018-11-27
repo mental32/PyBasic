@@ -3,12 +3,26 @@
 
 #include "vm.h"
 
+/*
+Create and return a new BytecodeHeader.
+
+Parameters
+----------
+ uint8_t *bytecode - The bytecode to initialize the header with.
+*/
 BytecodeHeader *BytecodeHeader_New(uint8_t *bytecode)
 {
     BytecodeHeader *header = malloc(sizeof(BytecodeHeader));
     header->varspace_size = 0;
 }
 
+/*
+Create a new (uninitialized) VMState.
+
+Parameters
+----------
+ uint8_t *bytecode - The bytecode to bind to the VMState.
+*/
 VMState *VirtualMachine_new(uint8_t *bytecode)
 {
     VMState *vm = (VMState *) malloc(sizeof(VMState));
@@ -23,6 +37,14 @@ VMState *VirtualMachine_new(uint8_t *bytecode)
     return vm;
 }
 
+/*
+initialize a VMState, if called with an already initialized VMState it will be reinitialized.
+returns a 1 if successfull otherwise 0.
+
+Parameters
+----------
+ VMState *vm - The VMState to initialize.
+*/
 int VirtualMachine_init(VMState *vm)
 {
     vm->header = BytecodeHeader_New(vm->bytecode);
@@ -58,6 +80,12 @@ int VirtualMachine_init(VMState *vm)
 }
 
 /*
+Free and destroy a VMState.
+This also clears and free's the stack and the varspace.
+
+Parameters
+----------
+ VMState *vm - The VMState to free.
 */
 int VirtualMachine_free(VMState *vm)
 {

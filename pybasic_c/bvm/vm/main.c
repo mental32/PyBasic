@@ -12,6 +12,12 @@
 #define skip(vm) vm->ip += sizeof(short)
 
 /*
+push an Object onto the VM stack.
+
+Parameters
+----------
+ VMState *vm - The VMState to use.
+ Objact *item - The Object to push onto the stack.
 */
 inline int VMState_pushstack(VMState *vm, Object *item) {
     if (!item || !vm) {
@@ -27,6 +33,13 @@ inline int VMState_pushstack(VMState *vm, Object *item) {
     return 1;
 }
 
+/*
+pop an Object off the stack.
+
+Parameters
+----------
+ VMState *vm - The VMState stack to use.
+*/
 inline Object *VMState_popstack(VMState *vm) {
     if (!vm) {
         return NULL;
@@ -57,6 +70,11 @@ inline Object *VMState_resolve(VMState *vm, Object *ref) {
 /*
 Entry point for the VM.
 At this point its basically one function with a huge switch case statement.
+
+Parameters
+----------
+ uint8_t *bytecode - A pointer to the base of the bytecode that the VM should read.
+ size_t bytecode_size - The size of the bytecode.
 */
 int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 {

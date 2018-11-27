@@ -13,6 +13,10 @@ const _Bool *False = &_false;
 
 /*
 Create a new Object with a boolean type.
+
+Parameters
+----------
+ int n - The value to represent as a bool.
 */
 Object *Object_Bool(int n)
 {
@@ -23,6 +27,9 @@ Object *Object_Bool(int n)
 
 /*
 Determine if an object is true (1) or false (0)
+
+Parameters
+----------
 */
 int Object_bool(Object *obj)
 {
@@ -37,8 +44,12 @@ int Object_bool(Object *obj)
 
 /*
 Compare two objects.
-
 Objects are only equal if they are of the same type and contain the same data.
+
+Parameters
+----------
+ Object *left - The Object we're comparing
+ Object *right - The second Object we're comparing against.
 */
 int Object_Compare(Object *left, Object *right)
 {

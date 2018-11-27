@@ -4,6 +4,10 @@
 
 /*
 format and write an objects data to stdout (no newline).
+
+Parameters
+----------
+ Object *obj - The Object to display.
 */
 void Object_print(Object *obj)
 {
