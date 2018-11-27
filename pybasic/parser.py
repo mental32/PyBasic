@@ -63,10 +63,11 @@ def resolve(token):
 
 def evaluate(metadata, tokens):
     expression = bytearray()
-    constants, varnames = metadata
 
     if not tokens:
         return expression
+
+    constants, varnames = metadata
 
     types = {_pybasic.type(t) for t in tokens}
     ttypes = tuple((t, _pybasic.type(t)) for t in tokens)
@@ -75,20 +76,16 @@ def evaluate(metadata, tokens):
         real = eval(''.join(tokens))
     else:
         stream = iter(reversed(ttypes))
-        value, value_type = next(stream)
+        value, value_t = next(stream)
         real = resolve(value)
 
     while True:
         if isinstance(real, int):
-            if 254 >= real >= 0:
-                expression += _bvm_ins['load_byte'].to_bytes(1, sys.byteorder)
-                expression += struct.pack('=B', real)
-            else:
-                expression += _bvm_ins['load_long'].to_bytes(1, sys.byteorder)
-                expression += struct.pack('@l', real)
+            expression += _bvm_ins['load_long'].to_bytes(1, sys.byteorder)
+            expression += struct.pack('@l', real)
 
         elif isinstance(real, bool):
-            expression += _bvm_ins['load_byte'].to_bytes(1, sys.byteorder)
+            expression += _bvm_ins['load_long'].to_bytes(1, sys.byteorder)
             expression += struct.pack('=?', real)
 
         elif isinstance(real, Logic):
@@ -103,7 +100,7 @@ def evaluate(metadata, tokens):
             expression += real.ins.to_bytes(1, sys.byteorder)
 
         elif isinstance(real, str):
-            if value_type == 'S':
+            if value_t == 'S':
                 expression += _bvm_ins['load_const'].to_bytes(1, sys.byteorder)
                 real = real[1:-1]
 
@@ -119,7 +116,7 @@ def evaluate(metadata, tokens):
             break
 
         try:
-            value, value_type = next(stream)
+            value, value_t = next(stream)
             real = resolve(value)
         except StopIteration:
             break
@@ -192,8 +189,6 @@ def tokenize(source):
 
         elif src[0] == 'let':
             bytecode += evaluate(metadata, src[3:])
-            bytecode += _bvm_ins['load_name'].to_bytes(1, sys.byteorder)
-            bytecode += metadata[1].index(src[1]).to_bytes(1, sys.byteorder)
             bytecode += _bvm_ins['store'].to_bytes(1, sys.byteorder)
             bytecode += struct.pack('=h', metadata[1].index(src[1]))
 
@@ -237,4 +232,5 @@ def tokenize(source):
 
         else:
             bytecode += evaluate(metadata, src)
-    return header + bytecode
+
+    return header + bytecode + _bvm_ins['return'].to_bytes(1, sys.byteorder)
