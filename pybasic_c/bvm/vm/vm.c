@@ -56,17 +56,28 @@ int VirtualMachine_init(VMState *vm)
     return 1;
 }
 
+/*
+*/
 int VirtualMachine_free(VMState *vm)
 {
     while (vm->sp--)
     {
-        Object_UDECREF(vm->stack[vm->sp]);
+        if (vm->stack[vm->sp])
+            Object_Free(vm->stack[vm->sp]);
     }
 
-    for (size_t i = 0; i < vm->header->varspace_size; i++)
+    if (vm->varspace != NULL)
     {
-        Object_UDECREF(vm->varspace[i]);
+        for (size_t i = 0; i < vm->header->varspace_size; i++)
+        {
+            if (vm->varspace[i] != NULL) {
+                Object_Free(vm->varspace[i]);
+            }
+        }
     }
+
+    free(vm->header);
+    free(vm);
 
     return 1;
 }
