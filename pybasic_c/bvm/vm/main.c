@@ -66,11 +66,27 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
         return OK;
     }
 
+
+    #if __BVM_DEBUG
+    printf("! Creating VMState instance.\n");
+    #endif
+
     VMState *vm = VirtualMachine_new(bytecode);
-    
+
+    #define resolve(o) VMState_resolve(vm, o)
+    #define stack_item() vm->stack[vm->sp - 1]
+
+    #if __BVM_DEBUG
+    printf("! Initializing VMState...");
+    #endif
+
     if (!VirtualMachine_init(vm)) {
         return PANIC;
     }
+
+    #if __BVM_DEBUG
+    printf("OK\n! Entering VMState loop\n");
+    #endif
 
     vm->_running = 1;
 
@@ -102,18 +118,33 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
             }
 
             case _INS_LOAD_NAME: {
-                VMState_pushstack(vm, Object_New(generic_ref, (uint8_t *) (++vm->ip)));
+                VMState_pushstack(vm, Object_New(generic_ref, *(short*)(++vm->ip)));
+
+                #if __BVM_DEBUG
+                printf("! LOAD_NAME( %ld )\n", (short)stack_item()->ptr);
+                #endif
+
                 break;
             }
 
             case _INS_LOAD_CONST: {
-                VMState_pushstack(vm, Object_String(vm->const_pool[*++vm->ip]));
+                VMState_pushstack(vm, Object_String(vm->const_pool[*(uint8_t)++vm->ip]));
+
+                #if __BVM_DEBUG
+                printf("! LOAD_CONST( %ld => \"%s\")\n", (uint8_t)(vm->ip - 1), (char*)stack_item()->ptr);
+                #endif
+
                 break;
             }
 
             case _INS_LOAD_LONG: {
                 VMState_pushstack(vm, Object_Integer(*(long*) (vm->ip + 1)));
                 vm->ip += sizeof(long);
+
+                #if __BVM_DEBUG
+                printf("! LOAD_LONG( %ld )", (long)stack_item()->ptr);
+                #endif
+
                 break;
             }
 
