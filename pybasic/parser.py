@@ -113,7 +113,7 @@ def evaluate(metadata, tokens):
                 expression += constants.index(real).to_bytes(1, sys.byteorder)
             else:
                 expression += _bvm_ins['load_name'].to_bytes(1, sys.byteorder)
-                expression += varnames.index(real).to_bytes(1, sys.byteorder)
+                expression += struct.pack('=h', varnames.index(real))
 
         if 'V' not in types:
             break
@@ -195,6 +195,7 @@ def tokenize(source):
             bytecode += _bvm_ins['load_name'].to_bytes(1, sys.byteorder)
             bytecode += metadata[1].index(src[1]).to_bytes(1, sys.byteorder)
             bytecode += _bvm_ins['store'].to_bytes(1, sys.byteorder)
+            bytecode += struct.pack('=h', metadata[1].index(src[1]))
 
         elif src[0] == 'if':
             *e, _g_ln = src[1:]

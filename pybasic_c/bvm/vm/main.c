@@ -52,7 +52,7 @@ inline Object *VMState_resolve(VMState *vm, Object *ref) {
     return obj;
 }
 
-#define store(name, value) vm->varspace[*((uint8_t *)name->ptr)] = VMState_resolve(vm, value)
+#define store(name, value) vm->varspace[name] = VMState_resolve(vm, value)
 
 /*
 Entry point for the VM.
@@ -94,11 +94,10 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
             }
 
             case _INS_STORE_NAME: {
-                Object *name = VMState_popstack(vm);
                 Object *value = VMState_popstack(vm);
-
-                store(name, value);
+                vm->varspace[*(short*)(vm->ip + 1)] = VMState_resolve(vm, value);
                 Object_INCREF(value);
+                vm->ip += sizeof(short);
                 break;
             }
 
@@ -114,7 +113,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
             case _INS_LOAD_LONG: {
                 VMState_pushstack(vm, Object_Integer(*(long*) (vm->ip + 1)));
-                vm->ip += sizeof(*((long*) (vm->ip + 1)));
+                vm->ip += sizeof(long);
                 break;
             }
 
