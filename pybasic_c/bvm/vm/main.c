@@ -19,7 +19,7 @@ inline int VMState_pushstack(VMState *vm, Object *item) {
     } else {
         vm->stack[vm->sp++] = item;
 
-        // Object is not being refrenced by the stack
+        // Object is now being refrenced by the stack
         // Gotta increase the refrence count
         Object_INCREF(item);
     }
