@@ -26,6 +26,13 @@ int VirtualMachine_init(VMState *vm)
 {
     vm->header = BytecodeHeader_New(vm->bytecode);
 
+    vm->varspace = (Object **) malloc(sizeof(Object **) * vm->header->varspace_size);
+
+    for (size_t i = 0; i < vm->header->varspace_size; i++)
+    {
+        vm->varspace[i] = NULL;
+    }
+
     // Read size of constants pool.
     short dp = 0, data_size = *((short*) (vm->ip));
 
