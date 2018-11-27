@@ -19,7 +19,7 @@ void Object_print(Object *obj)
         }
 
         case generic_int: {
-            printf("%ld", *((long*)obj->ptr));
+            printf("%ld", (long)obj->ptr);
             break;
         }
 
