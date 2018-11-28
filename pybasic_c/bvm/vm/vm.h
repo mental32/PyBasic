@@ -35,7 +35,7 @@ typedef struct {
 } VMState;
 
 VMState *VirtualMachine_new(uint8_t *bytecode);
+void VirtualMachine_free(VMState *vm);
 int VirtualMachine_init(VMState *vm);
-int VirtualMachine_free(VMState *vm);
 
 #endif

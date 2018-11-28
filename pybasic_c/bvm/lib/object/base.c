@@ -27,14 +27,13 @@ Parameters
 ----------
  Object *obj - The Object to free.
 */
-int Object_Free(Object *obj)
+void Object_Free(Object *obj)
 {
     if (!obj) {
         return 0;
     }
 
     free(obj);
-    return 1;
 }
 
 /*
