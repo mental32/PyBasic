@@ -167,14 +167,38 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
             }
 
             case _INS_BINARY_ADD: {
+                Object *a = VMState_resolve(vm, VMState_popstack(vm));
+                Object *b = VMState_resolve(vm, VMState_popstack(vm));
+
+                #if __BVM_DEBUG
+                printf("! |BINARY_ADD ( %ld + %ld = %ld )\n", (long)a->ptr, (long)b->ptr, (long)a->ptr + (long)b->ptr);
+                #endif
+
+                VMState_pushstack(vm, Object_Integer((long)a->ptr + (long)b->ptr));
                 break;
             }
 
             case _INS_BINARY_SUB: {
+                Object *a = VMState_resolve(vm, VMState_popstack(vm));
+                Object *b = VMState_resolve(vm, VMState_popstack(vm));
+
+                #if __BVM_DEBUG
+                printf("! |BINARY_SUB ( %ld - %ld = %ld )\n", (long)a->ptr, (long)b->ptr, (long)a->ptr - (long)b->ptr);
+                #endif
+
+                VMState_pushstack(vm, Object_Integer((long)a->ptr - (long)b->ptr));
                 break;
             }
 
             case _INS_BINARY_MUL: {
+                Object *a = VMState_resolve(vm, VMState_popstack(vm));
+                Object *b = VMState_resolve(vm, VMState_popstack(vm));
+
+                #if __BVM_DEBUG
+                printf("! |BINARY_MUL ( %ld * %ld = %ld )\n", (long)a->ptr, (long)b->ptr, (long)a->ptr * (long)b->ptr);
+                #endif
+
+                VMState_pushstack(vm, Object_Integer((long)a->ptr * (long)b->ptr));
                 break;
             }
 
