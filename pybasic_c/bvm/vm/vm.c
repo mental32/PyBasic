@@ -94,14 +94,18 @@ void VirtualMachine_free(VMState *vm)
     {
         if (vm->stack[vm->sp])
             Object_Free(vm->stack[vm->sp]);
+
+        vm->stack[vm->sp] = NULL;
     }
 
     if (vm->varspace != NULL)
     {
+        // Should we loop using the varspace pointer instead of a counter?
         for (size_t i = 0; i < vm->header->varspace_size; i++)
         {
             if (vm->varspace[i] != NULL) {
                 Object_Free(vm->varspace[i]);
+                vm->varspace[i] = NULL;
             }
         }
     }
