@@ -59,7 +59,7 @@ inline Object *VMState_resolve(VMState *vm, Object *ref) {
     Object *obj = ref;
 
     while (obj->tp == generic_ref) {
-        obj = vm->varspace[*((uint8_t*)obj->ptr)];
+        obj = vm->varspace[(long)obj->ptr];
     }
 
     return obj;
@@ -113,7 +113,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
         vm->insc++;
 
         #if __BVM_DEBUG
-        printf("! ins=%d\t:: ip=%p\t:: sp=%ld\n", *vm->ip, vm->ip, vm->sp);
+        printf("!-ins=%d :: ip=%p :: sp=%ld\n", *vm->ip, vm->ip, vm->sp);
         #endif
 
         switch (*vm->ip) {
@@ -136,20 +136,20 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
             }
 
             case _INS_LOAD_NAME: {
-                VMState_pushstack(vm, Object_New(generic_ref, *(short*)(++vm->ip)));
+                VMState_pushstack(vm, Object_New(generic_ref, (void*) (*(short*)(++vm->ip))));
 
                 #if __BVM_DEBUG
-                printf("! LOAD_NAME( %ld )\n", (short)stack_item()->ptr);
+                printf("! |LOAD_NAME( %d )\n", (short)stack_item()->ptr);
                 #endif
 
                 break;
             }
 
             case _INS_LOAD_CONST: {
-                VMState_pushstack(vm, Object_String(vm->const_pool[*(uint8_t)++vm->ip]));
+                VMState_pushstack(vm, Object_String(vm->const_pool[*++vm->ip]));
 
                 #if __BVM_DEBUG
-                printf("! LOAD_CONST( %ld => \"%s\")\n", (uint8_t)(vm->ip - 1), (char*)stack_item()->ptr);
+                printf("! |LOAD_CONST( %d => \"%s\")\n", (uint8_t)(vm->ip - 1), (char*)stack_item()->ptr);
                 #endif
 
                 break;
@@ -160,65 +160,25 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
                 vm->ip += sizeof(long);
 
                 #if __BVM_DEBUG
-                printf("! LOAD_LONG( %ld )", (long)stack_item()->ptr);
+                printf("! |LOAD_LONG( %d )\n", (long)stack_item()->ptr);
                 #endif
 
                 break;
             }
 
             case _INS_BINARY_ADD: {
-                Object *_ref_a = VMState_popstack(vm);
-
-                Object *a = resolve(vm, _ref_a);
-                Object *b = resolve(vm, VMState_popstack(vm));
-
-                if (a->tp & generic_int && b->tp & generic_int) {
-                    // TailorInteger(_ref_a, (long)(GetIntValue(a) + GetIntValue(b)));
-                    VMState_pushstack(vm, _ref_a);
-                }
-
                 break;
             }
 
             case _INS_BINARY_SUB: {
-                Object *_ref_a = VMState_popstack(vm);
-
-                Object *a = resolve(vm, _ref_a);
-                Object *b = resolve(vm, VMState_popstack(vm));
-
-                if (a->tp & generic_int && b->tp & generic_int) {
-                    // TailorInteger(_ref_a, (long)(GetIntValue(a) - GetIntValue(b)));
-                    VMState_pushstack(vm, _ref_a);
-                }
-
                 break;
             }
 
             case _INS_BINARY_MUL: {
-                Object *_ref_a = VMState_popstack(vm);
-
-                Object *a = resolve(vm, _ref_a);
-                Object *b = resolve(vm, VMState_popstack(vm));
-
-                if (a->tp & generic_int && b->tp & generic_int) {
-                    // TailorInteger(_ref_a, (long)((long)GetIntValue(a) * (long)GetIntValue(b)));
-                    VMState_pushstack(vm, _ref_a);
-                }
-
                 break;
             }
 
             case _INS_BINARY_DIV: {
-                Object *_ref_a = VMState_popstack(vm);
-
-                Object *a = resolve(vm, _ref_a);
-                Object *b = resolve(vm, VMState_popstack(vm));
-
-                if (a->tp & generic_int && b->tp & generic_int) {
-                    // TailorInteger(_ref_a, (long)(GetIntValue(a) / GetIntValue(b)));
-                    VMState_pushstack(vm, _ref_a);
-                }
-
                 break;
             }
 
@@ -261,6 +221,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
                     Object_print(item);
                     Object_UDECREF(item);
                 }
+                vm->sp = 0;
                 printf("\n");
                 break;
             }
