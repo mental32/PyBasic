@@ -21,8 +21,8 @@ Parameters
 Object *Object_Bool(int n)
 {
     if (n)
-        return Object_New(generic_bool, True);
-    return Object_New(generic_bool, False);
+        return Object_New(generic_bool, (void*)True);
+    return Object_New(generic_bool, (void*)False);
 }
 
 /*
@@ -34,6 +34,9 @@ Parameters
 */
 int Object_bool(Object *obj)
 {
+    if (obj->tp & generic_bool)
+        return (long)obj->ptr;
+
     if (is_int(obj)) {
         return ((long)obj->ptr) != 0;
     } 
