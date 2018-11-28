@@ -14,6 +14,7 @@ BytecodeHeader *BytecodeHeader_New(uint8_t *bytecode)
 {
     BytecodeHeader *header = malloc(sizeof(BytecodeHeader));
     header->varspace_size = 0;
+    return header;
 }
 
 /*
