@@ -20,6 +20,8 @@ implementation of a VirtualMachine state.
 */
 typedef struct {
     uint8_t *ip;
+    uint8_t *bytecode;
+
     uint8_t _running;
     uint8_t __state;
 
