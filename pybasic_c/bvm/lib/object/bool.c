@@ -30,13 +30,16 @@ Determine if an object is true (1) or false (0)
 
 Parameters
 ----------
+ Object *obj - The Object to examine.
 */
 int Object_bool(Object *obj)
 {
     if (is_int(obj)) {
-        return DEREF_INT(obj) != 0;
-    } else if (is_str(obj)) {
-        return strlen(DEREF_STR(obj)) != 0;
+        return ((long)obj->ptr) != 0;
+    } 
+
+    else if (is_str(obj)) {
+        return strlen((char*)obj->ptr) != 0;
     }
 
     return 0;
@@ -58,14 +61,10 @@ int Object_Compare(Object *left, Object *right)
     if (!type) goto exit;
 
     if (type & generic_int)
-    {
-        return DEREF_INT(left) == DEREF_INT(right);
-    }
+        return (long)left->ptr == (long)right->ptr;
 
     if (type & generic_str)
-    {
-        return !strcmp(DEREF_STR(left), DEREF_STR(right));
-    }
+        return !strcmp((char*)left->ptr, (char*)right->ptr);
 
 exit:
     return 0;
