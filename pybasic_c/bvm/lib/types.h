@@ -11,7 +11,7 @@ enum object_type {
 };
 
 #define STRING   (generic_str)
-#define INTEGER  (u32 | generic_int)
+#define NUMBER  (generic_flt | generic_int)
 
 #define is_int(o) ((o->tp) & generic_int)
 #define is_str(o) ((o->tp) & generic_str)
