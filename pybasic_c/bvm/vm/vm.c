@@ -51,6 +51,7 @@ int VirtualMachine_init(VMState *vm)
     vm->header = BytecodeHeader_New(vm->bytecode);
 
     vm->varspace = (Object **) malloc(sizeof(Object **) * vm->header->varspace_size);
+    vm->stack = (Object **) malloc(sizeof(Object **) * 1024);
 
     for (size_t i = 0; i < vm->header->varspace_size; i++)
     {
