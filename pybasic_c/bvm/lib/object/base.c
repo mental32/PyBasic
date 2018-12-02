@@ -29,8 +29,8 @@ Parameters
 */
 void Object_Free(Object *obj)
 {
-    if (!obj) {
-        return 0;
+    if (!obj)
+        return;
     }
 
     free(obj);
