@@ -2,6 +2,10 @@
 
 /*
 Constructor for a string Object.
+
+Parameters
+----------
+ char *str - The string to represent.
 */
 Object *Object_String(char *str)
 {
