@@ -6,7 +6,7 @@
 #include "../lib/status.h"
 #include "../lib/object/base.h"
 
-#define __BVM_DEBUG 1
+#define __BVM_DEBUG 0
 
 char *BytecodeVirtualMachine_err;
 
