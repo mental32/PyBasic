@@ -139,7 +139,7 @@ def extract(source):
         lt = None
 
         for token in stream:
-            if token == 'rem':
+            if token.lower() == 'rem':
                 break
 
             if token not in reserved_words and token not in '!=*/+-{}[]@:;#~?.><,\\|\"\'£$%^&*()_`¬':
