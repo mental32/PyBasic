@@ -110,3 +110,13 @@ Internally these object refrence counts are modified with DECREF and INCREF macr
 /* Chains Object_XDECREF (null check) and Object_FDECREF (free if forgotten). */
 #define Object_UDECREF(o) if (o != NULL && !(--o->rc)) Object_Free(o)
 ```
+
+## Bytecode
+
+The bytecode has a simple structure consisting of: the header, constants pool and bytecode.
+
+### The bytecode header
+
+The header is located from bits 0 to 32.<br>
+The first 16 bits declare the size of the constants pool (by members)<br>
+and the last 16 bits dictates the limit of stored variables.
