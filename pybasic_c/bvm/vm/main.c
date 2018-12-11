@@ -264,6 +264,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
     if (vm->_running)
     {
+        err("VM exited while running.\n");
         _status = PANIC;
     }
 
