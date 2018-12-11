@@ -29,7 +29,7 @@ Parameters
 */
 void Object_Free(Object *obj)
 {
-    if (!obj)
+    if (!obj) {
         return;
     }
 
