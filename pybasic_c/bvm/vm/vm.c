@@ -61,22 +61,21 @@ int VirtualMachine_init(VMState *vm)
     // Read size of constants pool.
     short dp = 0, data_size = *((short*) (vm->ip));
 
-    if (data_size > 2)
-    {
-        // Map the constants pool to vm->data
-        // This is for a lookup speed of O(n)
-        // When refrencing constants.
-        char *p = (char *)vm->ip + 2, *end = (char *)(data_size + vm->ip + 2);
-        vm->const_pool = (char**) malloc((size_t) (end - p));
+    vm->header->size = data_size;
 
-        while (p < end) {
-            vm->const_pool[dp++] = p;
-            p += strlen(p) + 1;
-        }
+    // Map the constants pool to vm->data
+    // This is for a lookup speed of O(n)
+    // When refrencing constants.
+    char *p = (char *)vm->ip + 2, *end = (char *)(data_size + vm->ip + 2);
+    vm->const_pool = (char**) malloc((size_t) (end - p));
+
+    while (p < end) {
+        vm->const_pool[dp++] = p;
+        p += strlen(p) + 1;
     }
 
-    // Then jump ahead of it.
-    vm->ip += data_size - 1;
+    // jump ahead of the constants pool.
+    vm->ip += vm->header->size - 1;
 
     return 1;
 }
