@@ -14,6 +14,7 @@ char *BytecodeVirtualMachine_err;
 Helper struct for containing bytecode metadata.
 */
 typedef struct {
+    uint16_t size;
     uint16_t varspace_size;
 } BytecodeHeader;
 
