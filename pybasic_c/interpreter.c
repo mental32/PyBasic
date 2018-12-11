@@ -69,7 +69,7 @@ ByteCodeInterpreter_run_source(ByteCodeInterpreter *self, PyObject *args)
     uint8_t *bytecode = (uint8_t *) PyByteArray_AS_STRING(bytearray);
 
     if (BytecodeVirtualMachine_main(bytecode, size) != 0) {
-        PyErr_SetString(PyExc_RuntimeError, "BVM aborted execution.");
+        PyErr_SetString(PyExc_RuntimeError, BytecodeVirtualMachine_err);
         return NULL;
     }
 
