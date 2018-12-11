@@ -83,7 +83,7 @@ PyBasic runs on a bytecode interepreter commonly refered to as the BVM.
 | 0x0B     | NOT        | pop a, not its value, push result                                       |
 | 0x0C     | JMP_TRUE   | pop a, if a is truthy jump by the next short                            |
 | 0x0D     | GOTO       | change the instruction pointer by the value of the next short           |
-| 0x0E     | PRINT      | ehaust the stack, displaying the items to stdout                        |
+| 0x0E     | PRINT      | exhaust the stack, displaying the items to stdout                        |
 
 
 ### Garbage Collection
