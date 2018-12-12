@@ -35,7 +35,7 @@ Parameters
 int Object_bool(Object *obj)
 {
     if (obj->tp & generic_bool)
-        return (long)obj->ptr;
+        return *((_Bool*)obj->ptr);
 
     if (is_int(obj)) {
         return ((long)obj->ptr) != 0;
