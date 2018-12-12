@@ -159,6 +159,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
                 vm->ip++;
 
+                Object_INCREF(VMState_resolve(vm, stack_item()));
+
                 break;
             }
 
