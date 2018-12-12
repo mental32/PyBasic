@@ -25,7 +25,7 @@ Command line usage for pybasic is pretty much
 
 ## Issues
  - There is no REPL
- - All integers are unsigned longs
+ - All integers are longs, if you overflow them you will get unexpected behaviour.
  - Division currently behaves as floor division due to no floating point integers
  - If you get infinite loop, you will have to suspend and kill the process
 
@@ -55,11 +55,11 @@ Working:
  - Expressions
  - Flow control
  - Conditional loops
+ - GC
 
 Planned:
  - Builtins
  - I/O
- - GC
 
 ## BVM
 
