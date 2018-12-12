@@ -157,6 +157,8 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
                 printf("! |LOAD_NAME( %d )\n", (short)stack_item()->ptr);
                 #endif
 
+                vm->ip++;
+
                 break;
             }
 
