@@ -149,7 +149,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
                 VMState_pushstack(vm, Object_String(vm->const_pool[*((uint8_t*)(++vm->ip))]));
 
                 #if __BVM_DEBUG
-                printf("! |LOAD_CONST( %d => \"%s\")\n", *((uint8_t*)(vm->ip)), (char*)stack_item()->ptr);
+                printf("! |LOAD_CONST( %d ) => \"%s\"\n", *((uint8_t*)(vm->ip)), (char*)stack_item()->ptr);
                 #endif
 
                 break;
