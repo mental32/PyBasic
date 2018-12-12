@@ -129,9 +129,24 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
 
             case _INS_STORE_NAME: {
                 Object *value = VMState_popstack(vm);
+
+                #if __BVM_DEBUG
+                printf("! |STORE_NAME( %d :: ", *(short*)(vm->ip + 1));
+                Object_print(VMState_resolve(vm, value));
+                printf(" :: ");
+                Object_print(vm->varspace[*(short*)(vm->ip + 1)]);
+                #endif
+
                 vm->varspace[*(short*)(vm->ip + 1)] = VMState_resolve(vm, value);
+
+                #if __BVM_DEBUG
+                printf(" :: ");
+                Object_print(vm->varspace[*(short*)(vm->ip + 1)]);
+                printf(")\n");
+                #endif
+
                 Object_INCREF(value);
-                vm->ip += sizeof(short);
+                vm->ip += 2;
                 break;
             }
 
