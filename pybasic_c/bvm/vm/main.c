@@ -154,7 +154,9 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
                 VMState_pushstack(vm, Object_New(generic_ref, (void*) (*(short*)(++vm->ip))));
 
                 #if __BVM_DEBUG
-                printf("! |LOAD_NAME( %d )\n", (short)stack_item()->ptr);
+                printf("! |LOAD_NAME( %d ) => ", (short)stack_item()->ptr);
+                Object_print(VMState_resolve(vm, stack_item()));
+                printf("\n");
                 #endif
 
                 vm->ip++;
