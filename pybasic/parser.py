@@ -227,7 +227,7 @@ def tokenize(source):
         elif len(src) >= 3 and src[1] == '=' and src[2] != '=':
             bytecode += evaluate(metadata, src[2:])
             bytecode += _bvm_ins['store'].to_bytes(1, sys.byteorder)
-            bytecode += metadata[1].index(src[0]).to_bytes(1, sys.byteorder)
+            bytecode += struct.pack('=h', metadata[1].index(src[0]))
 
         else:
             bytecode += evaluate(metadata, src)
