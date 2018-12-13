@@ -177,7 +177,7 @@ int BytecodeVirtualMachine_main(uint8_t *bytecode, size_t bytecode_size)
             }
 
             case _INS_LOAD_LONG: {
-                VMState_pushstack(vm, Object_Integer(*(long*) (vm->ip + 1)));
+                VMState_pushstack(vm, Object_Integer(*((long*)(vm->ip + 1))));
                 vm->ip += sizeof(long);
 
                 #if __BVM_DEBUG

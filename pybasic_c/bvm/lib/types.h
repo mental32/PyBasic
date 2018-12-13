@@ -10,7 +10,7 @@ enum object_type {
     generic_bool = 16,
 };
 
-#define STRING   (generic_str)
+#define STRING  (generic_str)
 #define NUMBER  (generic_flt | generic_int)
 
 #define is_int(o) ((o->tp) & generic_int)
