@@ -88,7 +88,7 @@ Parameters
 ----------
  VMState *vm - The VMState to free.
 */
-void VirtualMachine_free(VMState *vm)
+int VirtualMachine_free(VMState *vm)
 {
     while (vm->sp--)
     {
@@ -111,5 +111,10 @@ void VirtualMachine_free(VMState *vm)
     }
 
     free(vm->header);
+    
+    int _status = vm->__state;
+
     free(vm);
+
+    return _status;
 }

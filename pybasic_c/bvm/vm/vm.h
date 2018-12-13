@@ -40,9 +40,9 @@ typedef struct {
 } VMState;
 
 VMState *VirtualMachine_new(uint8_t *bytecode);
-void VirtualMachine_free(VMState *vm);
+int VirtualMachine_free(VMState *vm);
 int VirtualMachine_init(VMState *vm);
 
-#define err(s) BytecodeVirtualMachine_err = s
+void BytecodeVirtualMachine_step(VMState *vm);
 
 #endif
