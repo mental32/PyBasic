@@ -8,8 +8,6 @@
 
 #define __BVM_DEBUG 0
 
-char *BytecodeVirtualMachine_err;
-
 /*
 Helper struct for containing bytecode metadata.
 */
@@ -28,6 +26,7 @@ typedef struct {
     uint8_t _running;
     uint8_t __state;
 
+    char *err;
     char **const_pool;
 
     size_t insc;
