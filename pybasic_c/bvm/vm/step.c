@@ -149,8 +149,8 @@ void BytecodeVirtualMachine_step(VMState *vm)
 
             if (Object_bool(obj)) {
                 jump(vm);
-            } else if ((vm->header->size - (vm->ip - vm->bytecode)) >= 2){
-                skip(vm);
+            } else {
+                vm->ip += 2;
             }
 
             break;
