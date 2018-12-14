@@ -12,7 +12,8 @@
 Helper struct for containing bytecode metadata.
 */
 typedef struct {
-    uint16_t size;
+    uint16_t consts_p_size;
+    uint16_t bytecode_size;
     uint16_t varspace_size;
 } BytecodeHeader;
 
