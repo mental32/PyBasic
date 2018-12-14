@@ -41,7 +41,7 @@ typedef struct {
 
 VMState *VirtualMachine_new(uint8_t *bytecode);
 int VirtualMachine_free(VMState *vm);
-int VirtualMachine_init(VMState *vm);
+int VirtualMachine_init(VMState *vm, size_t bytecode_size);
 
 void BytecodeVirtualMachine_step(VMState *vm);
 

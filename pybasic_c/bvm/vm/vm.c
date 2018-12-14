@@ -46,12 +46,14 @@ Parameters
 ----------
  VMState *vm - The VMState to initialize.
 */
-int VirtualMachine_init(VMState *vm)
+int VirtualMachine_init(VMState *vm, size_t bytecode_size)
 {
     vm->header = BytecodeHeader_New(vm->bytecode);
 
     vm->varspace = (Object **) malloc(sizeof(Object **) * vm->header->varspace_size);
     vm->stack = (Object **) malloc(sizeof(Object **) * 1024);
+
+    vm->header->bytecode_size = (uint16_t)bytecode_size;
 
     for (size_t i = 0; i < vm->header->varspace_size; i++)
     {
@@ -61,7 +63,7 @@ int VirtualMachine_init(VMState *vm)
     // Read size of constants pool.
     short dp = 0, data_size = *((short*) (vm->ip));
 
-    vm->header->size = data_size;
+    vm->header->consts_p_size = data_size;
 
     // Map the constants pool to vm->data
     // This is for a lookup speed of O(n)
@@ -75,7 +77,7 @@ int VirtualMachine_init(VMState *vm)
     }
 
     // jump ahead of the constants pool.
-    vm->ip += vm->header->size - 1;
+    vm->ip += vm->header->consts_p_size - 1;
 
     return 1;
 }
