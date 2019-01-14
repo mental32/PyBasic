@@ -24,10 +24,9 @@ Command line usage for pybasic is pretty much
 
 
 ## Issues
- - There is no REPL
  - All integers are longs, if you overflow them you will get unexpected behaviour.
- - Division currently behaves as floor division due to no floating point integers
- - If you get infinite loop, you will have to suspend and kill the process
+ - Division currently behaves as floor division due to no floating point integers.
+ - If you get infinite loop, you will have to suspend and kill the process.
 
 Enjoy!
 
@@ -42,24 +41,24 @@ Then run with `python -m pybasic hello.bas`.
 
 It should then produce the following
 ```
-$> python -m pybasic hello.bas
+user@host$ python -m pybasic hello.bas
 Hello world!
 ```
 
 ## Progress
 
 Working:
- - Jumping
- - Printing
- - Assignment
- - Expressions
- - Flow control
- - Conditional loops
- - GC
+ - [x] Jumping
+ - [x] Printing
+ - [x] Assignment
+ - [x] Expressions
+ - [x] Flow control
+ - [x] Conditional loops
+ - [x] GC
 
 Planned:
- - Builtins
- - I/O
+ - [ ] Builtins
+ - [ ] I/O
 
 ## BVM
 
