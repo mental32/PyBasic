@@ -3,9 +3,6 @@
 
 #include "vm.h"
 
-#define jump(vm) vm->ip += *((short*) (vm->ip + 1))
-#define skip(vm) vm->ip += sizeof(short)
-
 /*
 push an Object onto the VM stack.
 
