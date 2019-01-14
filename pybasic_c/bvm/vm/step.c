@@ -170,11 +170,27 @@ void BytecodeVirtualMachine_step(VMState *vm)
         case _INS_JMP_TRUE: {
             Object *obj = VMState_popstack(vm);
 
+            #if __BVM_DEBUG
+            printf("! | JUMP_TRUE :: ( ");
+            Object_print(obj);
+            printf(" :: %"PRIi16" ) ? ", *((int16_t*) (vm->ip)));
+            #endif
+
             if (Object_bool(obj)) {
-                jump(vm);
+                #if __BVM_DEBUG
+                printf("True");
+                #endif
+                vm->ip += *((int16_t*) (vm->ip));
             } else {
+                #if __BVM_DEBUG
+                printf("False");
+                #endif
                 vm->ip += 2;
             }
+
+            #if __BVM_DEBUG
+            printf("\n");
+            #endif
 
             break;
         }
@@ -192,7 +208,11 @@ void BytecodeVirtualMachine_step(VMState *vm)
         }
 
         case _INS_GOTO: {
-            vm->ip += *((short*) (vm->ip + 1));
+            #if __BVM_DEBUG
+            printf("! |GOTO :: %"PRIi16" :: %p ::\n", *((int16_t*) (vm->ip + 1)), vm->ip);
+            #endif
+
+            vm->ip += *((int16_t*) (vm->ip + 1));
             break;
         }
 
