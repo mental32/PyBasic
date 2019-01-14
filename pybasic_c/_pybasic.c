@@ -4,76 +4,6 @@
 #include "_pybasic.h"
 #include "bvm/vm/ins.h"
 
-static void populate_ins_dict(PyObject *dict) {
-    PyDict_SetItem(dict, PyUnicode_FromString("nop"),        PyLong_FromLong(_INS_NOP));
-    PyDict_SetItem(dict, PyUnicode_FromString("return"),     PyLong_FromLong(_INS_RETURN));
-
-    
-    PyDict_SetItem(dict, PyUnicode_FromString("store"),      PyLong_FromLong(_INS_STORE_NAME));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("load_const"), PyLong_FromLong(_INS_LOAD_CONST));
-    PyDict_SetItem(dict, PyUnicode_FromString("load_name"),  PyLong_FromLong(_INS_LOAD_NAME));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("load_long"),  PyLong_FromLong(_INS_LOAD_LONG));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("binary_add"), PyLong_FromLong(_INS_BINARY_ADD));
-    PyDict_SetItem(dict, PyUnicode_FromString("binary_sub"), PyLong_FromLong(_INS_BINARY_SUB));
-    PyDict_SetItem(dict, PyUnicode_FromString("binary_mul"), PyLong_FromLong(_INS_BINARY_MUL));
-    PyDict_SetItem(dict, PyUnicode_FromString("binary_div"), PyLong_FromLong(_INS_BINARY_DIV));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("cmp"),        PyLong_FromLong(_INS_CMP));
-    PyDict_SetItem(dict, PyUnicode_FromString("not"),        PyLong_FromLong(_INS_NOT));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("jmp_true"), PyLong_FromLong(_INS_JMP_TRUE));
-
-    PyDict_SetItem(dict, PyUnicode_FromString("goto"),       PyLong_FromLong(_INS_GOTO));
-    PyDict_SetItem(dict, PyUnicode_FromString("print"),      PyLong_FromLong(_INS_PRINT));
-}
-
-static PyObject *
-token_type(PyObject *self, PyObject *args)
-{
-    PyObject *tp;
-    const char *token;
-    char *end;
-
-    if (!PyArg_ParseTuple(args, "s", &token)) {
-        return NULL;
-    }
-
-    size_t length = strlen(token);
-
-    if (length == 1) {
-        if (((int) *token) >= 42 && ((int) *token) <= 47) {
-            tp = PyUnicode_FromString("O");
-        } else if (((int) *token) >= 48 && ((int) *token) <= 57) {
-            tp = PyUnicode_FromString("I");
-        } else {
-            tp = PyUnicode_FromString("V");
-        }
-    }
-
-    else if (token[0] == '"') {
-        if (token[length - 1] == '"') {
-            tp = PyUnicode_FromString("S");
-        } else {
-            PyErr_SetString(PyExc_ValueError, "Invalid token.");
-            return NULL;
-        }
-    }
-
-    else if (strtol(token, &end, 10)) {
-        tp = PyUnicode_FromString("I");
-    }
-
-    else {
-        tp = PyUnicode_FromString("U");
-    }
-
-    Py_INCREF(tp);
-    return tp;
-}
-
 static PyObject *
 set_tokenizer(PyObject *self, PyObject *args)
 {
@@ -85,28 +15,50 @@ set_tokenizer(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-get_all_bytecode_instructions(PyObject *self, PyObject *args)
+get_bytecode_instructions(PyObject *self, PyObject *args)
 {
     PyObject *dict = PyDict_New();
     Py_INCREF(dict);
 
-    populate_ins_dict(dict);
+#define set(s, l) PyDict_SetItem(dict, PyUnicode_FromString(s), PyLong_FromLong(l))
+
+    set("nop",        _INS_NOP);
+
+    set("return",     _INS_RETURN);
+    set("store",      _INS_STORE_NAME);
+
+    set("load_const", _INS_LOAD_CONST);
+    set("load_name",  _INS_LOAD_NAME);
+    set("load_long",  _INS_LOAD_LONG);
+
+    set("binary_add", _INS_BINARY_ADD);
+    set("binary_sub", _INS_BINARY_SUB);
+    set("binary_mul", _INS_BINARY_MUL);
+    set("binary_div", _INS_BINARY_DIV);
+
+    set("cmp",        _INS_CMP);
+    set("not",        _INS_NOT);
+
+    set("jmp_true",   _INS_JMP_TRUE);
+
+    set("goto",       _INS_GOTO);
+    set("print",      _INS_PRINT);
+
     return dict;
 }
 
-static PyMethodDef BPyBasicMethods[] = {
-    {"type", token_type, METH_VARARGS, "Get the type of a token."},
+static PyMethodDef _PyBasicMethods[] = {
     {"set_tokenizer", set_tokenizer, METH_VARARGS, "Set the default tokenizer used."},
-    {"get_bytecodes", get_all_bytecode_instructions, METH_VARARGS, "Get all bytecode instructions as a dict (name -> bytecode)."},
+    {"get_bytecodes", get_bytecode_instructions, METH_VARARGS, "Get all bytecode instructions as a dict (name -> bytecode)."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-static struct PyModuleDef BPyBasicModule = {
+static struct PyModuleDef _PyBasicModule = {
     PyModuleDef_HEAD_INIT,
     "_pybasic",   /* name of module */
     NULL,         /* module documentation, may be NULL */
     -1,           /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
-    BPyBasicMethods
+    _PyBasicMethods
 };
 
 PyMODINIT_FUNC
@@ -117,7 +69,7 @@ PyInit__pybasic(void)
         return NULL;
     }
 
-    module = PyModule_Create(&BPyBasicModule);
+    module = PyModule_Create(&_PyBasicModule);
     if (module == NULL) {
         return NULL;
     }
