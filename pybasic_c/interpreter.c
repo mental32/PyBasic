@@ -50,9 +50,7 @@ ByteCodeInterpreter_dealloc(ByteCodeInterpreter *self)
 static PyObject *
 ByteCodeInterpreter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    ByteCodeInterpreter *self;
-    self = (ByteCodeInterpreter *) type->tp_alloc(type, 0);
-    return (PyObject *) self;
+    return (PyObject *)((ByteCodeInterpreter *) type->tp_alloc(type, 0));
 }
 
 static PyObject *
