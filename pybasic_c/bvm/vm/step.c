@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "../lib/object.h"
 
@@ -28,17 +29,17 @@ void BytecodeVirtualMachine_step(VMState *vm)
             Object *value = VMState_popstack(vm);
 
             #if __BVM_DEBUG
-            printf("! |STORE_NAME( %d :: ", *(short*)(vm->ip + 1));
+            printf("! |STORE_NAME( %"PRIu16" :: ", *(uint16_t*)(vm->ip + 1));
             Object_print(VMState_resolve(vm, value));
             printf(" :: ");
-            Object_print(vm->varspace[*(short*)(vm->ip + 1)]);
+            Object_print(vm->varspace[*(uint16_t*)(vm->ip + 1)]);
             #endif
 
-            vm->varspace[*(short*)(vm->ip + 1)] = VMState_resolve(vm, value);
+            vm->varspace[*(uint16_t*)(vm->ip + 1)] = VMState_resolve(vm, value);
 
             #if __BVM_DEBUG
             printf(" :: ");
-            Object_print(vm->varspace[*(short*)(vm->ip + 1)]);
+            Object_print(vm->varspace[*(uint16_t*)(vm->ip + 1)]);
             printf(")\n");
             #endif
 
@@ -48,10 +49,10 @@ void BytecodeVirtualMachine_step(VMState *vm)
         }
 
         case _INS_LOAD_NAME: {
-            VMState_pushstack(vm, Object_New(generic_ref, (void*) (*(short*)(++vm->ip))));
+            VMState_pushstack(vm, Object_New(generic_ref, (void*) (*(uint16_t*)(++vm->ip))));
 
             #if __BVM_DEBUG
-            printf("! |LOAD_NAME( %d ) => ", (short)stack_item()->ptr);
+            printf("! |LOAD_NAME( %"PRIu16" ) => ", (uint16_t)stack_item()->ptr);
             Object_print(VMState_resolve(vm, stack_item()));
             printf("\n");
             #endif
@@ -67,18 +68,40 @@ void BytecodeVirtualMachine_step(VMState *vm)
             VMState_pushstack(vm, Object_String(vm->const_pool[*((uint8_t*)(++vm->ip))]));
 
             #if __BVM_DEBUG
-            printf("! |LOAD_CONST( %d ) => \"%s\"\n", *((uint8_t*)(vm->ip)), (char*)stack_item()->ptr);
+            printf("! |LOAD_CONST( %"PRIu8" ) => \"%s\"\n", *((uint8_t*)(vm->ip)), (char*)stack_item()->ptr);
             #endif
 
             break;
         }
 
         case _INS_LOAD_LONG: {
-            VMState_pushstack(vm, Object_Integer(*((long*)(vm->ip + 1))));
-            vm->ip += sizeof(long);
+            VMState_pushstack(vm, Object_Integer(*((int32_t*)(vm->ip + 1))));
+            vm->ip += 4;
 
             #if __BVM_DEBUG
-            printf("! |LOAD_LONG( %d )\n", (long)stack_item()->ptr);
+            printf("! |LOAD_LONG( %"PRIi32" )\n", (int32_t)stack_item()->ptr);
+            #endif
+
+            break;
+        }
+
+        case _INS_LOAD_SHORT: {
+            VMState_pushstack(vm, Object_Integer(*((int16_t*)(vm->ip + 1))));
+            vm->ip += 2;
+
+            #if __BVM_DEBUG
+            printf("! |LOAD_SHORT( %"PRIi16" )\n", (int16_t)stack_item()->ptr);
+            #endif
+
+            break;
+        }
+
+        case _INS_LOAD_BYTE: {
+            VMState_pushstack(vm, Object_Integer(*((int8_t*)(vm->ip + 1))));
+            vm->ip += 1;
+
+            #if __BVM_DEBUG
+            printf("! |LOAD_BYTE( %"PRIi8" )\n", (int8_t)stack_item()->ptr);
             #endif
 
             break;
@@ -89,10 +112,10 @@ void BytecodeVirtualMachine_step(VMState *vm)
             Object *b = VMState_resolve(vm, VMState_popstack(vm));
 
             #if __BVM_DEBUG
-            printf("! |BINARY_ADD ( %ld + %ld = %ld )\n", (long)a->ptr, (long)b->ptr, (long)a->ptr + (long)b->ptr);
+            printf("! |BINARY_ADD ( %"PRIu32" + %"PRIu32" = %"PRIu32" )\n", (uint32_t)a->ptr, (uint32_t)b->ptr, (uint32_t)a->ptr + (uint32_t)b->ptr);
             #endif
 
-            VMState_pushstack(vm, Object_Integer((long)a->ptr + (long)b->ptr));
+            VMState_pushstack(vm, Object_Integer((uint32_t)a->ptr + (uint32_t)b->ptr));
             break;
         }
 
@@ -101,10 +124,10 @@ void BytecodeVirtualMachine_step(VMState *vm)
             Object *b = VMState_resolve(vm, VMState_popstack(vm));
 
             #if __BVM_DEBUG
-            printf("! |BINARY_SUB ( %ld - %ld = %ld )\n", (long)a->ptr, (long)b->ptr, (long)a->ptr - (long)b->ptr);
+            printf("! |BINARY_SUB ( %"PRIu32" - %"PRIu32" = %"PRIu32" )\n", (uint32_t)a->ptr, (uint32_t)b->ptr, (uint32_t)a->ptr - (uint32_t)b->ptr);
             #endif
 
-            VMState_pushstack(vm, Object_Integer((long)a->ptr - (long)b->ptr));
+            VMState_pushstack(vm, Object_Integer((uint32_t)a->ptr - (uint32_t)b->ptr));
             break;
         }
 
@@ -113,10 +136,10 @@ void BytecodeVirtualMachine_step(VMState *vm)
             Object *b = VMState_resolve(vm, VMState_popstack(vm));
 
             #if __BVM_DEBUG
-            printf("! |BINARY_MUL ( %ld * %ld = %ld )\n", (long)a->ptr, (long)b->ptr, (long)a->ptr * (long)b->ptr);
+            printf("! |BINARY_MUL ( %"PRIu32" * %"PRIu32" = %"PRIu32" )\n", (uint32_t)a->ptr, (uint32_t)b->ptr, (uint32_t)a->ptr * (uint32_t)b->ptr);
             #endif
 
-            VMState_pushstack(vm, Object_Integer((long)a->ptr * (long)b->ptr));
+            VMState_pushstack(vm, Object_Integer((uint32_t)a->ptr * (uint32_t)b->ptr));
             break;
         }
 
