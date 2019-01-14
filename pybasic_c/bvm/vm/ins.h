@@ -10,7 +10,9 @@ enum BYTECODE {
     _INS_LOAD_NAME,
     _INS_LOAD_CONST,
 
-    _INS_LOAD_LONG,
+    _INS_LOAD_LONG,  // 4 bytes
+    _INS_LOAD_SHORT, // 2 bytes
+    _INS_LOAD_BYTE,  // 1 byte
 
     _INS_BINARY_ADD,
     _INS_BINARY_SUB,
