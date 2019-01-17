@@ -8,22 +8,24 @@ if '.' not in sys.path:
 from pybasic import Interpreter
 
 def main(args):
+    _timed = args.time
     _pybvm = Interpreter()
 
     if args.file is None:
-        return _pybvm.run_repl()
+        return pybasic.run_repl(_pybvm)
 
     with open(args.file) as inf:
         source = inf.read().strip()
 
-    t1 = time.time()
+    if _timed:
+        t1 = time.time()
 
     try:
         _pybvm.run_source(source)
     except RuntimeError as err:
         sys.exit(err)
 
-    if args.time:
+    if _timed:
         print(time.time() - t1)
 
 if __name__ == '__main__':
