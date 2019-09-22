@@ -1,12 +1,10 @@
-import os
-import glob
-from distutils.core import setup, Extension
-
-ext_sources = [fp for files in (glob.glob('%s/*.c' % fp) for path in os.walk('.') for fp in (path[0],)) for fp in files if files]
+from setuptools import setup
 
 setup(
     name='pybasic',
-    version='0.1.0',
+    version='0.3.0',
+    requires=['click'],
     description='CPython BASIC interpreter',
-    ext_modules=[Extension('_pybasic', sources=ext_sources)]
+    packages=['pybasic', 'pybasic.compiler', 'pybasic.runtime'],
+    zip_safe=False,
 )
