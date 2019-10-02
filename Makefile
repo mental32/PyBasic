@@ -1,3 +1,8 @@
+#!/usr/bin/make
+
+PYTHON = python3
+
+.PHONY: install
 
 install:
-	python3 setup.py install --user
+	$(PYTHON) setup.py install --user
