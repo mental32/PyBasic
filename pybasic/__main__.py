@@ -1,35 +1,57 @@
 import sys
 import time
-import argparse
 
-if '.' not in sys.path:
-    sys.path.append('.')
+import click
 
-from pybasic import Interpreter
+from . import compile as _pybasic_compile
 
-def main(args):
-    _timed = args.time
-    _pybvm = Interpreter()
 
-    if args.file is None:
-        return pybasic.run_repl(_pybvm)
+class Timer:
+    __slots__ = ('dummy', 'start_time', 'laps')
 
-    with open(args.file) as inf:
-        source = inf.read().strip()
+    def __init__(self, dummy: bool = False):
+        self.dummy = dummy
+        self.start_time = time.monotonic_ns()
+        self.laps = []
 
-    if _timed:
-        t1 = time.time()
+    def __enter__(self):
+        if not self.dummy:
+            self.laps.append((time.monotonic_ns(), None))
 
-    try:
-        _pybvm.run_source(source)
-    except RuntimeError as err:
-        sys.exit(err)
+    def __exit__(self, *_):
+        if not self.dummy:
+            start, _ = self.laps.pop()
+            self.laps.append((start, time.monotonic_ns()))
 
-    if _timed:
-        print(time.time() - t1)
+    @property
+    def lap(self):
+        if not self.dummy:
+            if not self.laps:
+                return time.monotonic_ns() - self.start_time
+            else:
+                start, end = self.laps[-1]
+                return end - start
+
+
+@click.command()
+@click.argument('file')
+@click.option('--timed', '-t', is_flag=True)
+def main(file, timed):
+    timer = Timer(dummy=(not timed))
+
+    with open(file) as source_file:
+        with timer:
+            code = _pybasic_compile(source_file)
+
+        if timed:
+            LOGGER.info('Compiled source in %s', timer.lap)
+
+        if False:
+            with timer:
+                pybasic.exec(code)
+
+        if timed:
+            LOGGER.info('Executed code in %s', timer.lap)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-t', dest='time', action='store_true', help='Output the execution time in seconds')
-    parser.add_argument('file', nargs='?', help='read and run program from file.')
-    main(parser.parse_args())
+    main()
