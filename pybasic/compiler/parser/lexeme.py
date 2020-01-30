@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, NamedTuple
 
 
-@dataclass(frozen=True)
-class Lexeme:
+class Lexeme(NamedTuple):
     """A basic lexical unit.
 
     >>> Lexeme(body="foo", pos=("bar.py", 1, 1))
@@ -18,17 +17,10 @@ class Lexeme:
         The remaining two ints are the line and column numbers respectively.
     """
     body: str
-    pos: Tuple[str, int, int]
-
-
-    @property
-    def file(self):
-        return self.pos[0]
+    file: str
+    line: int
+    col: int
 
     @property
-    def line(self):
-        return self.pos[1]
-
-    @property
-    def col(self):
-        return self.pos[2]
+    def pos(self):
+        return (self.file, self.line, self.col)

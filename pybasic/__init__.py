@@ -1,5 +1,7 @@
-from pybasic.compiler import compile
-from pybasic.runtime import exec
+__version__ = "0.3.0"
+__author__ = "mental"
+__license__ = "MIT"
 
-__version__ = '0.3.0'
-__author__ = 'mental'
+from .errors import *
+from .compiler import *
+from .runtime import *

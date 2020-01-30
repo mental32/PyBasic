@@ -5,9 +5,11 @@ from string import digits, ascii_letters as alpha, punctuation
 from enum import IntEnum, auto
 from typing import List, Iterator
 
-from pybasic.compiler.errors import BadStringLiteral
+from pybasic.errors import BadStringLiteral
 
 from .lexeme import Lexeme
+
+__all__ = ("CharGroup", "CharMap", "CHAR_MAP", "CHAR_GROUP_QUOTES", "io_lazy_reader", "lex", "lex_one")
 
 
 class CharGroup(IntEnum):
@@ -58,9 +60,11 @@ def io_lazy_reader(file: io.IOBase) -> Iterator[str]:
         byte = file.read(1)
 
         if not byte:
+            if buf:
+                yield "".join(buf).strip()
             return
 
-        if byte in ("\n", ";"):
+        if byte == "\n":
             yield "".join(buf).strip()
             buf.clear()
 
@@ -95,12 +99,12 @@ def lex_one(line: str, line_index: int, file_path: str) -> List[Lexeme]:
     for char in stream:
         char_group = CHAR_MAP.match(char)
 
-        if lexeme_group == char_group:
+        if lexeme_group == char_group or char_group is CharGroup.Numeric and lexeme_group is CharGroup.Alpha:
             lexeme_body += char
             continue
 
         column += len(lexeme_body)
-        lexemes.append(Lexeme(lexeme_body, (file_path, line_index, column)))
+        lexemes.append(Lexeme(lexeme_body, file_path, line_index, column - len(lexeme_body)))
 
         lexeme_group = char_group
         lexeme_body = char
@@ -121,15 +125,15 @@ def lex_one(line: str, line_index: int, file_path: str) -> List[Lexeme]:
                     break
 
             column += len(lexeme_body)
-            lexemes.append(Lexeme(lexeme_body, (file_path, line_index, column)))
+            lexemes.append(Lexeme(lexeme_body, file_path, line_index, column))
             lexeme_body = ''
             lexeme_group = None
 
     if lexeme_body:
         column += len(lexeme_body)
-        lexemes.append(Lexeme(lexeme_body, (file_path, line_index, column)))
+        lexemes.append(Lexeme(lexeme_body, file_path, line_index, column))
 
-    return lexemes
+    return list(filter((lambda lexeme: bool(lexeme.body)), lexemes))
 
 
 def lex(source: Union[IOBase, str], file_path: str):

@@ -1,12 +1,15 @@
 from dataclasses import dataclass
 from enum import IntEnum, auto
 from collections import namedtuple
-from typing import Tuple
+from typing import Tuple, NamedTuple
+
+__all__ = ("Token", "TokenType")
 
 
 class TokenType(IntEnum):
     Whitespace = auto()
     Semicolon = auto()
+    Colon = auto()
     Comma = auto()
     Assign = auto()
     Eq = auto()
@@ -28,87 +31,57 @@ class TokenType(IntEnum):
     EndOfLine = auto()
     EndOfInput = auto()
 
-    PrintStmt = auto()
-    EndStmt = auto()
-    IfStmt = auto()
-    LetStmt = auto()
-    ThenStmt = auto()
-    GotoStmt = auto()
+    GosubKeyword = auto()
+    ClearKeyword = auto()
+    InputKeyword = auto()
+    SleepKeyword = auto()
+    PrintKeyword = auto()
+    EndKeyword = auto()
+    IfKeyword = auto()
+    LetKeyword = auto()
+    ThenKeyword = auto()
+    GotoKeyword = auto()
 
+    DollarSign = auto()
     DoubleQuote = auto()
     SingleQuote = auto()
 
     Unknown = auto()
 
     @classmethod
-    def from_body(cls, body: str) -> 'TokenType':
-        for left, right in TOKENS.items():
-            if body in left:
-                return right
+    def from_body(cls, body: str) -> "TokenType":
+        from .grammar import TOKENS
+
+        if body in TOKENS:
+            return TOKENS[body]
 
         if body.isdigit():
             return TokenType.Integer
 
-        if len(body) >= 2 and ((body[0], body[-1]) == (q, q) for q in '"\''):
+        same_ends = body[0] == body[-1]
+        quoted = body[0] in (['"', "'"])
+
+        if len(body) >= 2 and same_ends and quoted:
             return TokenType.String
 
-        return TokenType.Unknown
+        if len(body) >= 1 and body[0].isalpha():
+            return TokenType.Ident
 
-@dataclass(frozen=True)
-class Token:
+        if set(body) == {" "}:
+            return TokenType.Whitespace
+
+        raise ValueError(f"Unknown token type: {body!r}")
+
+
+class Token(NamedTuple):
     """A recognised lexeme."""
+
     body: str
     tp: TokenType
-    pos: Tuple[str, int, int]
+    file: str
+    line: int
+    col: int
 
     @property
-    def file(self):
-        return self.pos[0]
-
-    @property
-    def line(self):
-        return self.pos[1]
-
-    @property
-    def col(self):
-        return self.pos[2]
-
-QUOTES = {
-    '"': TokenType.DoubleQuote,
-    '\'': TokenType.SingleQuote,
-}
-
-SIGILS = {
-    ' ': TokenType.Whitespace,
-    ';': TokenType.Semicolon,
-    ',': TokenType.Comma,
-    '=': TokenType.Assign,
-    '==': TokenType.Eq,
-    '!=': TokenType.Neq,
-    '+': TokenType.Add,
-    '-': TokenType.Sub,
-    '*': TokenType.Mul,
-    '/': TokenType.Div,
-    '&': TokenType.And,
-    '<<': TokenType.Shl,
-    '>>': TokenType.Shr,
-    '(' : TokenType.Lbr,
-    ')' : TokenType.Rbr,
-    '\n': TokenType.Newline,
-    **QUOTES
-}
-
-
-KEYWORDS = {
-    'print': TokenType.PrintStmt,
-    'PRINT': TokenType.PrintStmt,
-
-    'end': TokenType.EndStmt,
-    'END': TokenType.EndStmt,
-}
-
-
-TOKENS = {
-    **SIGILS,
-    **KEYWORDS
-}
+    def pos(self):
+        return (self.file, self.line, self.col)
